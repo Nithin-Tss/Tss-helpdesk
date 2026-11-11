@@ -3,10 +3,27 @@ import { Link, useParams } from "react-router-dom";
 import { apiGet, apiPatch, apiPost } from "../lib/api.js";
 import { useSession } from "../lib/auth.js";
 import {
-  AGENTS_API, CATEGORIES, CATEGORY_LABEL, PRIORITIES, PRIORITY_LABEL, STATUSES, STATUS_LABEL, TICKETS_API,
-  buildReplyPayload, clock, label, usePoll,
+  AGENTS_API,
+  CATEGORIES,
+  CATEGORY_LABEL,
+  PRIORITIES,
+  PRIORITY_LABEL,
+  STATUSES,
+  STATUS_LABEL,
+  TICKETS_API,
+  buildReplyPayload,
+  clock,
+  label,
+  usePoll,
 } from "../lib/tickets.js";
-import { ErrorNote, PriorityBadge, SourceBadge, StatusBadge, inputClass, secondaryButton } from "../components/ui.jsx";
+import {
+  ErrorNote,
+  PriorityBadge,
+  SourceBadge,
+  StatusBadge,
+  inputClass,
+  secondaryButton,
+} from "../components/ui.jsx";
 import { ReplyBox, Thread } from "../components/Conversation.jsx";
 
 /*
@@ -66,7 +83,10 @@ function TicketView({ ticketId }) {
   };
 
   const send = async ({ message, attachments }) => {
-    const res = await apiPost(`${base}messages/`, buildReplyPayload({ message, attachments, status: after, internal: mode === "note" }));
+    const res = await apiPost(
+      `${base}messages/`,
+      buildReplyPayload({ message, attachments, status: after, internal: mode === "note" })
+    );
     if (!res.ok) return { ok: false, error: res.error };
     if (alive.current) setTicket(res.data);
     return { ok: true };
@@ -78,7 +98,9 @@ function TicketView({ ticketId }) {
   const details = [
     ["Store", ticket.store?.name],
     ["Store ID", ticket.store?.id],
-    ...(ticket.user ? [...(ticket.user.name ? [["Name", ticket.user.name]] : []), ["Email", ticket.user.email]] : [["Requester", "Former user"]]),
+    ...(ticket.user
+      ? [...(ticket.user.name ? [["Name", ticket.user.name]] : []), ["Email", ticket.user.email]]
+      : [["Requester", "Former user"]]),
     ["Created", clock(ticket.createdAt)],
     ...(ticket.resolvedAt ? [["Resolved", clock(ticket.resolvedAt)]] : []),
   ];
@@ -92,14 +114,22 @@ function TicketView({ ticketId }) {
       <section className="rounded-2xl border border-slate-200 bg-white p-5">
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <span className="text-sm font-semibold text-slate-500">{ticket.ticketNumber}</span>
-          <h1 className="min-w-0 break-words text-lg font-semibold tracking-tight">{ticket.subject}</h1>
+          <h1 className="min-w-0 break-words text-lg font-semibold tracking-tight">
+            {ticket.subject}
+          </h1>
           <StatusBadge status={ticket.status} />
           <PriorityBadge priority={ticket.priority} />
           <SourceBadge source={ticket.source} />
         </div>
         <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Field name="Assigned to">
-            <select aria-label="Assigned to" className={`${inputClass} w-full`} disabled={busy} value={ticket.assignedTo?.id || ""} onChange={(e) => change({ assignedTo: e.target.value || null })}>
+            <select
+              aria-label="Assigned to"
+              className={`${inputClass} w-full`}
+              disabled={busy}
+              value={ticket.assignedTo?.id || ""}
+              onChange={(e) => change({ assignedTo: e.target.value || null })}
+            >
               <option value="">Unassigned</option>
               {agents.map((a) => (
                 <option key={a.id} value={a.id}>
@@ -109,7 +139,13 @@ function TicketView({ ticketId }) {
             </select>
           </Field>
           <Field name="Status">
-            <select aria-label="Status" className={`${inputClass} w-full`} disabled={busy} value={ticket.status} onChange={(e) => change({ status: e.target.value })}>
+            <select
+              aria-label="Status"
+              className={`${inputClass} w-full`}
+              disabled={busy}
+              value={ticket.status}
+              onChange={(e) => change({ status: e.target.value })}
+            >
               {STATUSES.map((s) => (
                 <option key={s} value={s}>
                   {label(STATUS_LABEL, s)}
@@ -118,7 +154,13 @@ function TicketView({ ticketId }) {
             </select>
           </Field>
           <Field name="Priority">
-            <select aria-label="Priority" className={`${inputClass} w-full`} disabled={busy} value={ticket.priority} onChange={(e) => change({ priority: e.target.value })}>
+            <select
+              aria-label="Priority"
+              className={`${inputClass} w-full`}
+              disabled={busy}
+              value={ticket.priority}
+              onChange={(e) => change({ priority: e.target.value })}
+            >
               {PRIORITIES.map((p) => (
                 <option key={p} value={p}>
                   {label(PRIORITY_LABEL, p)}
@@ -127,7 +169,13 @@ function TicketView({ ticketId }) {
             </select>
           </Field>
           <Field name="Category">
-            <select aria-label="Category" className={`${inputClass} w-full`} disabled={busy} value={ticket.category} onChange={(e) => change({ category: e.target.value })}>
+            <select
+              aria-label="Category"
+              className={`${inputClass} w-full`}
+              disabled={busy}
+              value={ticket.category}
+              onChange={(e) => change({ category: e.target.value })}
+            >
               {CATEGORIES.map((c) => (
                 <option key={c} value={c}>
                   {label(CATEGORY_LABEL, c)}
@@ -137,7 +185,17 @@ function TicketView({ ticketId }) {
           </Field>
         </div>
         {me && ticket.assignedTo?.id !== me && (
-          <button type="button" disabled={busy} onClick={() => change({ assignedTo: me, status: ticket.status === "open" ? "in_progress" : undefined })} className={`${secondaryButton} mt-3`}>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() =>
+              change({
+                assignedTo: me,
+                status: ticket.status === "open" ? "in_progress" : undefined,
+              })
+            }
+            className={`${secondaryButton} mt-3`}
+          >
             Take this ticket
           </button>
         )}
@@ -147,14 +205,19 @@ function TicketView({ ticketId }) {
       </section>
 
       {ticket.summary && (
-        <section aria-label="AI summary" className="rounded-2xl border border-orange-200 bg-orange-50 p-5">
+        <section
+          aria-label="AI summary"
+          className="rounded-2xl border border-orange-200 bg-orange-50 p-5"
+        >
           <h2 className="text-sm font-semibold text-orange-900">What the assistant gathered</h2>
           <p className="mt-1 whitespace-pre-wrap break-words text-sm">{ticket.summary}</p>
         </section>
       )}
 
       <details className="rounded-2xl border border-slate-200 bg-white">
-        <summary className="cursor-pointer px-5 py-3 text-sm font-medium">Store and requester</summary>
+        <summary className="cursor-pointer px-5 py-3 text-sm font-medium">
+          Store and requester
+        </summary>
         <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1.5 border-t border-slate-200 px-5 py-3 text-sm">
           {details.map(([k, v]) => (
             <Fragment key={k}>
@@ -167,11 +230,18 @@ function TicketView({ ticketId }) {
 
       {ticket.transcript?.length > 0 && (
         <details open className="rounded-2xl border border-slate-200 bg-white">
-          <summary className="cursor-pointer px-5 py-3 text-sm font-medium">Earlier chat with the assistant ({ticket.transcript.length} messages)</summary>
-          <ol aria-label="AI chat transcript" className="max-h-80 space-y-2 overflow-y-auto border-t border-slate-200 px-5 py-3 text-sm">
+          <summary className="cursor-pointer px-5 py-3 text-sm font-medium">
+            Earlier chat with the assistant ({ticket.transcript.length} messages)
+          </summary>
+          <ol
+            aria-label="AI chat transcript"
+            className="max-h-80 space-y-2 overflow-y-auto border-t border-slate-200 px-5 py-3 text-sm"
+          >
             {ticket.transcript.map((turn, i) => (
               <li key={i}>
-                <span className="font-medium text-slate-500">{turn.role === "user" ? "Customer" : "Assistant"}: </span>
+                <span className="font-medium text-slate-500">
+                  {turn.role === "user" ? "Customer" : "Assistant"}:{" "}
+                </span>
                 <span className="whitespace-pre-wrap break-words">{turn.content}</span>
               </li>
             ))}
@@ -181,22 +251,49 @@ function TicketView({ ticketId }) {
 
       <section className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
         <h2 className="mb-4 text-sm font-semibold">Conversation</h2>
-        {ticket.messages.length === 0 ? <p className="text-sm text-slate-500">No messages yet.</p> : <Thread messages={ticket.messages} />}
+        {ticket.messages.length === 0 ? (
+          <p className="text-sm text-slate-500">No messages yet.</p>
+        ) : (
+          <Thread messages={ticket.messages} />
+        )}
 
         <div className="mt-6 border-t border-slate-200 pt-5">
           <div role="tablist" aria-label="Reply type" className="mb-3 flex gap-1">
-            {[["reply", "Reply to customer"], ["note", "Internal note"]].map(([id, text]) => (
-              <button key={id} type="button" role="tab" aria-selected={mode === id} onClick={() => setMode(id)} className={`rounded-lg px-3 py-1.5 text-sm ${mode === id ? "bg-slate-900 font-semibold text-white" : "hover:bg-slate-200"}`}>
+            {[
+              ["reply", "Reply to customer"],
+              ["note", "Internal note"],
+            ].map(([id, text]) => (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                aria-selected={mode === id}
+                onClick={() => setMode(id)}
+                className={`rounded-lg px-3 py-1.5 text-sm ${mode === id ? "bg-slate-900 font-semibold text-white" : "hover:bg-slate-200"}`}
+              >
                 {text}
               </button>
             ))}
           </div>
-          {mode === "note" && <p className="mb-3 text-xs text-amber-800">Only support staff see internal notes. The customer is not notified.</p>}
-          <ReplyBox key={mode} onSend={send} uploadUrl={`${base}attachments/`} allowImages={mode === "reply"}>
+          {mode === "note" && (
+            <p className="mb-3 text-xs text-amber-800">
+              Only support staff see internal notes. The customer is not notified.
+            </p>
+          )}
+          <ReplyBox
+            key={mode}
+            onSend={send}
+            uploadUrl={`${base}attachments/`}
+            allowImages={mode === "reply"}
+          >
             {mode === "reply" && (
               <label className="flex items-center gap-2 text-sm text-slate-600">
                 After sending, mark as
-                <select value={after} onChange={(e) => setAfter(e.target.value)} className={inputClass}>
+                <select
+                  value={after}
+                  onChange={(e) => setAfter(e.target.value)}
+                  className={inputClass}
+                >
                   {STATUSES.map((s) => (
                     <option key={s} value={s}>
                       {label(STATUS_LABEL, s)}

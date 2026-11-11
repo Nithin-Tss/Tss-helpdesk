@@ -35,16 +35,26 @@ export const PRIORITY_TONE = {
 };
 export const CATEGORIES = ["payments", "shipping", "domains", "themes", "account", "other"];
 export const CATEGORY_LABEL = {
-  payments: "Payments", shipping: "Shipping", domains: "Domains", themes: "Themes", account: "Account", other: "Other",
+  payments: "Payments",
+  shipping: "Shipping",
+  domains: "Domains",
+  themes: "Themes",
+  account: "Account",
+  other: "Other",
 };
-export const SOURCE_LABEL = { ai_escalation: "Escalated by AI", customer_request: "Asked for a human", help_center: "Help Center form" };
+export const SOURCE_LABEL = {
+  ai_escalation: "Escalated by AI",
+  customer_request: "Asked for a human",
+  help_center: "Help Center form",
+};
 
 export const label = (map, key) => map[key] || String(key ?? "");
 
 // Query string for the list. filters = { status, priority, category, assigned, q } ("" = no filter).
 export function buildQuery(filters = {}, { limit, offset } = {}) {
   const params = new URLSearchParams();
-  for (const key of ["status", "priority", "category", "assigned"]) if (filters[key]) params.set(key, filters[key]);
+  for (const key of ["status", "priority", "category", "assigned"])
+    if (filters[key]) params.set(key, filters[key]);
   if (String(filters.q ?? "").trim()) params.set("q", String(filters.q).trim());
   if (limit != null) params.set("limit", limit);
   if (offset != null) params.set("offset", offset);
@@ -75,7 +85,9 @@ export function clock(value) {
   const time = date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
   if (date.toDateString() === now.toDateString()) return time;
   const day = date.toLocaleDateString([], {
-    month: "short", day: "numeric", ...(date.getFullYear() === now.getFullYear() ? {} : { year: "numeric" }),
+    month: "short",
+    day: "numeric",
+    ...(date.getFullYear() === now.getFullYear() ? {} : { year: "numeric" }),
   });
   return `${day}, ${time}`;
 }

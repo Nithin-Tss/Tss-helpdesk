@@ -8,7 +8,8 @@ export function Thread({ messages }) {
   const end = useRef(null);
   const seen = useRef(null);
   useEffect(() => {
-    if (seen.current !== null && messages.length > seen.current) end.current?.scrollIntoView?.({ block: "end", behavior: "smooth" });
+    if (seen.current !== null && messages.length > seen.current)
+      end.current?.scrollIntoView?.({ block: "end", behavior: "smooth" });
     seen.current = messages.length;
   }, [messages.length]);
 
@@ -24,7 +25,9 @@ export function Thread({ messages }) {
         return (
           <li key={m.id} className={`flex ${ours ? "justify-end" : "justify-start"}`}>
             <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${tone}`}>
-              <p className={`text-xs ${ours && !m.isInternal ? "text-slate-300" : "text-slate-500"}`}>
+              <p
+                className={`text-xs ${ours && !m.isInternal ? "text-slate-300" : "text-slate-500"}`}
+              >
                 {m.isInternal ? "Internal note · " : ""}
                 {m.senderName} · {clock(m.createdAt)}
               </p>
@@ -34,7 +37,11 @@ export function Thread({ messages }) {
                   {m.attachments.map((a, i) => (
                     <li key={a.id || a.url || i}>
                       <a href={a.url} target="_blank" rel="noreferrer noopener">
-                        <img src={a.url} alt={a.name || "Attachment"} className="h-20 w-20 rounded-lg object-cover" />
+                        <img
+                          src={a.url}
+                          alt={a.name || "Attachment"}
+                          className="h-20 w-20 rounded-lg object-cover"
+                        />
                       </a>
                     </li>
                   ))}
@@ -107,7 +114,11 @@ export function ReplyBox({ onSend, uploadUrl, allowImages = true, children }) {
         <ul className="flex flex-wrap gap-3">
           {images.map((i) => (
             <li key={i.id} className="relative">
-              <img src={i.url} alt={i.name || "Image"} className="h-16 w-16 rounded-lg border border-slate-200 object-cover" />
+              <img
+                src={i.url}
+                alt={i.name || "Image"}
+                className="h-16 w-16 rounded-lg border border-slate-200 object-cover"
+              />
               <button
                 type="button"
                 aria-label={`Remove ${i.name || "image"}`}
@@ -123,7 +134,15 @@ export function ReplyBox({ onSend, uploadUrl, allowImages = true, children }) {
       <div className="flex flex-wrap items-center gap-3">
         {allowImages && (
           <>
-            <input ref={input} type="file" hidden multiple accept="image/png,image/jpeg,image/webp" onChange={pick} aria-label="Attach images" />
+            <input
+              ref={input}
+              type="file"
+              hidden
+              multiple
+              accept="image/png,image/jpeg,image/webp"
+              onChange={pick}
+              aria-label="Attach images"
+            />
             <button
               type="button"
               className={secondaryButton}

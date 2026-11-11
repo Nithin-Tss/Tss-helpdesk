@@ -1,6 +1,7 @@
 import { getSession, setSession } from "./auth.js";
 
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://localhost:8000" : "");
+const API_URL =
+  import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://localhost:8000" : "");
 
 export const NETWORK_ERROR = "Unable to reach the server. Please try again.";
 
@@ -74,8 +75,10 @@ async function call(path, options, fallback) {
 }
 
 export const apiGet = (path) => call(path, {}, "Could not load this. Please try again.");
-export const apiPost = (path, body) => call(path, { method: "POST", body }, "Could not send. Please try again.");
-export const apiPatch = (path, body) => call(path, { method: "PATCH", body }, "Could not save. Please try again.");
+export const apiPost = (path, body) =>
+  call(path, { method: "POST", body }, "Could not send. Please try again.");
+export const apiPatch = (path, body) =>
+  call(path, { method: "PATCH", body }, "Could not save. Please try again.");
 export function apiUpload(path, field, file) {
   const form = new FormData();
   form.append(field, file);

@@ -3,9 +3,9 @@ import { MAX_REPLY, buildQuery, buildReplyPayload, validateReply } from "./ticke
 
 describe("buildQuery", () => {
   it("keeps only filled filters and trims the search", () => {
-    expect(buildQuery({ status: "active", priority: "", q: "  TSS-1 " }, { limit: 25, offset: 0 })).toBe(
-      "status=active&q=TSS-1&limit=25&offset=0",
-    );
+    expect(
+      buildQuery({ status: "active", priority: "", q: "  TSS-1 " }, { limit: 25, offset: 0 })
+    ).toBe("status=active&q=TSS-1&limit=25&offset=0");
   });
 });
 
@@ -19,7 +19,9 @@ describe("validateReply", () => {
 
 describe("buildReplyPayload", () => {
   it("sends a notes as internal with no status or pictures", () => {
-    expect(buildReplyPayload({ message: " hi ", internal: true, status: "open", attachments: ["a"] })).toEqual({
+    expect(
+      buildReplyPayload({ message: " hi ", internal: true, status: "open", attachments: ["a"] })
+    ).toEqual({
       message: "hi",
       internal: true,
     });

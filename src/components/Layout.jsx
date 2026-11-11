@@ -26,19 +26,28 @@ export default function Layout() {
             <NavLink
               to="/"
               end
-              className={({ isActive }) => `rounded-lg px-3 py-1.5 ${isActive ? "bg-slate-900 text-white" : "hover:bg-slate-100"}`}
+              className={({ isActive }) =>
+                `rounded-lg px-3 py-1.5 ${isActive ? "bg-slate-900 text-white" : "hover:bg-slate-100"}`
+              }
             >
               Tickets
             </NavLink>
             {waiting > 0 && (
-              <span title="Open and unassigned" className="rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white">
+              <span
+                title="Open and unassigned"
+                className="rounded-full bg-red-600 px-2 py-0.5 text-xs font-semibold text-white"
+              >
                 {waiting} waiting
               </span>
             )}
           </nav>
           <div className="ml-auto flex items-center gap-3 text-sm">
             <span className="hidden text-slate-600 sm:inline">{user?.email}</span>
-            <button type="button" onClick={signOut} className="rounded-lg border border-slate-300 px-3 py-1.5 hover:bg-slate-50">
+            <button
+              type="button"
+              onClick={signOut}
+              className="rounded-lg border border-slate-300 px-3 py-1.5 hover:bg-slate-50"
+            >
               Sign out
             </button>
           </div>
