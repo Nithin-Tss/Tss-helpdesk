@@ -101,6 +101,7 @@ function TicketView({ ticketId }) {
   if (error && !ticket) return <ErrorNote>{error}</ErrorNote>;
   if (!ticket) return <p className="text-sm text-stone-500">Loading…</p>;
 
+  const joined = Boolean(ticket.assignedTo);
   const customerName = ticket.user?.name || ticket.user?.email || "Customer";
   const details = [
     ["Store", ticket.store?.name],
@@ -148,22 +149,44 @@ function TicketView({ ticketId }) {
           <SourceBadge source={ticket.source} />
         </div>
         <div className="mt-6 grid gap-4 border-t border-stone-100 pt-5 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <Field name="Assigned to">
-            <select
-              aria-label="Assigned to"
-              className={`${inputClass} w-full`}
-              disabled={busy}
-              value={ticket.assignedTo?.id || ""}
-              onChange={(e) => change({ assignedTo: e.target.value || null })}
-            >
-              <option value="">Unassigned</option>
-              {agents.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.id === me ? `${a.name} (me)` : a.name}
-                </option>
-              ))}
-            </select>
-          </Field>
+          {joined ? (
+            <Field name="Assigned to">
+              <select
+                aria-label="Assigned to"
+                className={`${inputClass} w-full`}
+                disabled={busy}
+                value={ticket.assignedTo?.id || ""}
+                onChange={(e) => change({ assignedTo: e.target.value || null })}
+              >
+                <option value="">Unassigned</option>
+                {agents.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.id === me ? `${a.name} (me)` : a.name}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          ) : (
+            <div className="text-xs font-medium text-stone-500">
+              Assigned to
+              <div className="mt-1">
+                <button
+                  type="button"
+                  disabled={busy || !me}
+                  onClick={() =>
+                    change({
+                      assignedTo: me,
+                      status: ticket.status === "open" ? "in_progress" : undefined,
+                    })
+                  }
+                  className={`${secondaryButton} w-full justify-center`}
+                >
+                  <Icon name="userCheck" className="h-4 w-4 text-stone-500" />
+                  Join chat
+                </button>
+              </div>
+            </div>
+          )}
           <Field name="Status">
             <select
               aria-label="Status"
@@ -210,22 +233,6 @@ function TicketView({ ticketId }) {
             </select>
           </Field>
         </div>
-        {me && ticket.assignedTo?.id !== me && (
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() =>
-              change({
-                assignedTo: me,
-                status: ticket.status === "open" ? "in_progress" : undefined,
-              })
-            }
-            className={`${secondaryButton} mt-3`}
-          >
-            <Icon name="userCheck" className="h-4 w-4 text-stone-500" />
-            Take this ticket
-          </button>
-        )}
         <div className="mt-3">
           <ErrorNote>{error}</ErrorNote>
         </div>
@@ -310,59 +317,66 @@ function TicketView({ ticketId }) {
           <Thread messages={ticket.messages} />
         )}
 
-        <div className="mt-8 border-t border-stone-100 pt-6">
-          <div
-            role="tablist"
-            aria-label="Reply type"
-            className="mb-4 inline-flex gap-1 rounded-xl bg-stone-100 p-1"
-          >
-            {[
-              ["reply", "Reply to customer", "send"],
-              ["note", "Internal note", "note"],
-            ].map(([id, text, icon]) => (
-              <button
-                key={id}
-                type="button"
-                role="tab"
-                aria-selected={mode === id}
-                onClick={() => setMode(id)}
-                className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-sm transition ${mode === id ? "bg-white font-semibold text-ink shadow-sm" : "text-stone-500 hover:text-ink"}`}
-              >
-                <Icon name={icon} className="h-3.5 w-3.5" />
-                {text}
-              </button>
-            ))}
-          </div>
-          {mode === "note" && (
-            <p className="mb-3 flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900 ring-1 ring-inset ring-amber-200">
-              <Icon name="lock" className="h-3.5 w-3.5" />
-              Only support staff see internal notes. The customer is not notified.
-            </p>
-          )}
-          <ReplyBox
-            key={mode}
-            onSend={send}
-            uploadUrl={`${base}attachments/`}
-            allowImages={mode === "reply"}
-          >
-            {mode === "reply" && (
-              <label className="flex items-center gap-2 text-sm text-stone-600">
-                After sending, mark as
-                <select
-                  value={after}
-                  onChange={(e) => setAfter(e.target.value)}
-                  className={inputClass}
+        {!joined ? (
+          <p className="mt-8 rounded-xl bg-stone-50 px-4 py-3 text-sm text-stone-600 ring-1 ring-stone-200/70">
+            Click <strong>Join chat</strong> above to take over this conversation and reply to the
+            customer.
+          </p>
+        ) : (
+          <div className="mt-8 border-t border-stone-100 pt-6">
+            <div
+              role="tablist"
+              aria-label="Reply type"
+              className="mb-4 inline-flex gap-1 rounded-xl bg-stone-100 p-1"
+            >
+              {[
+                ["reply", "Reply to customer", "send"],
+                ["note", "Internal note", "note"],
+              ].map(([id, text, icon]) => (
+                <button
+                  key={id}
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === id}
+                  onClick={() => setMode(id)}
+                  className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-sm transition ${mode === id ? "bg-white font-semibold text-ink shadow-sm" : "text-stone-500 hover:text-ink"}`}
                 >
-                  {STATUSES.map((s) => (
-                    <option key={s} value={s}>
-                      {label(STATUS_LABEL, s)}
-                    </option>
-                  ))}
-                </select>
-              </label>
+                  <Icon name={icon} className="h-3.5 w-3.5" />
+                  {text}
+                </button>
+              ))}
+            </div>
+            {mode === "note" && (
+              <p className="mb-3 flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900 ring-1 ring-inset ring-amber-200">
+                <Icon name="lock" className="h-3.5 w-3.5" />
+                Only support staff see internal notes. The customer is not notified.
+              </p>
             )}
-          </ReplyBox>
-        </div>
+            <ReplyBox
+              key={mode}
+              onSend={send}
+              uploadUrl={`${base}attachments/`}
+              allowImages={mode === "reply"}
+            >
+              {mode === "reply" && (
+                <label className="flex items-center gap-2 text-sm text-stone-600">
+                  After sending, mark as
+                  <select
+                    value={after}
+                    onChange={(e) => setAfter(e.target.value)}
+                    className={inputClass}
+                  >
+                    {STATUSES.map((s) => (
+                      <option key={s} value={s}>
+                        {label(STATUS_LABEL, s)}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
+            </ReplyBox>
+          </div>
+        )}
       </section>
     </div>
   );
