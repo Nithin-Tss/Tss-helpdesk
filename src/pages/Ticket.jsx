@@ -8,6 +8,7 @@ import {
   CATEGORY_LABEL,
   PRIORITIES,
   PRIORITY_LABEL,
+  SLOW_POLL_MS,
   STATUSES,
   STATUS_LABEL,
   TICKETS_API,
@@ -15,6 +16,7 @@ import {
   clock,
   label,
   usePoll,
+  useTicketLive,
 } from "../lib/tickets.js";
 import {
   Avatar,
@@ -73,7 +75,8 @@ function TicketView({ ticketId }) {
     load();
     apiGet(AGENTS_API).then((res) => alive.current && res.ok && setAgents(res.data));
   }, [load]);
-  usePoll(load);
+  useTicketLive(`${base}events/`, load);
+  usePoll(load, SLOW_POLL_MS); // safety net; the live stream above does the real work
 
   const change = async (patch) => {
     setBusy(true);

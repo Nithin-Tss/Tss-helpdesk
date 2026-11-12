@@ -1,6 +1,6 @@
 import { getSession, setSession } from "./auth.js";
 
-const API_URL =
+export const API_URL =
   import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://localhost:8000" : "");
 
 export const NETWORK_ERROR = "Unable to reach the server. Please try again.";
