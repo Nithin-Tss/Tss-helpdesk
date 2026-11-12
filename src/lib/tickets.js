@@ -19,19 +19,32 @@ export const STATUS_LABEL = {
   closed: "Closed",
 };
 export const STATUS_TONE = {
-  open: "bg-emerald-50 text-emerald-700",
-  in_progress: "bg-sky-50 text-sky-700",
-  waiting_on_customer: "bg-amber-50 text-amber-700",
-  resolved: "bg-slate-100 text-slate-600",
-  closed: "bg-slate-100 text-slate-600",
+  open: "bg-emerald-50 text-emerald-800 ring-emerald-600/15",
+  in_progress: "bg-sky-50 text-sky-800 ring-sky-600/15",
+  waiting_on_customer: "bg-amber-50 text-amber-900 ring-amber-600/20",
+  resolved: "bg-stone-100 text-stone-600 ring-stone-500/15",
+  closed: "bg-stone-100 text-stone-500 ring-stone-500/15",
+};
+export const STATUS_DOT = {
+  open: "bg-emerald-500",
+  in_progress: "bg-sky-500",
+  waiting_on_customer: "bg-amber-500",
+  resolved: "bg-stone-400",
+  closed: "bg-stone-300",
 };
 export const PRIORITIES = ["low", "normal", "high", "urgent"];
 export const PRIORITY_LABEL = { low: "Low", normal: "Normal", high: "High", urgent: "Urgent" };
 export const PRIORITY_TONE = {
-  low: "bg-slate-100 text-slate-600",
-  normal: "bg-slate-100 text-slate-700",
-  high: "bg-amber-50 text-amber-700",
-  urgent: "bg-red-50 text-red-700",
+  low: "bg-stone-50 text-stone-500 ring-stone-400/20",
+  normal: "bg-stone-50 text-stone-700 ring-stone-400/25",
+  high: "bg-orange-50 text-orange-800 ring-orange-600/20",
+  urgent: "bg-red-50 text-red-700 ring-red-600/20",
+};
+export const PRIORITY_DOT = {
+  low: "bg-stone-300",
+  normal: "bg-stone-400",
+  high: "bg-orange-500",
+  urgent: "bg-red-500",
 };
 export const CATEGORIES = ["payments", "shipping", "domains", "themes", "account", "other"];
 export const CATEGORY_LABEL = {
@@ -46,6 +59,12 @@ export const SOURCE_LABEL = {
   ai_escalation: "Escalated by AI",
   customer_request: "Asked for a human",
   help_center: "Help Center form",
+};
+
+export const SOURCE_ICON = {
+  ai_escalation: "sparkles",
+  customer_request: "hand",
+  help_center: "book",
 };
 
 export const label = (map, key) => map[key] || String(key ?? "");

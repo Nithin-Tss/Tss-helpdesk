@@ -17,13 +17,16 @@ import {
   usePoll,
 } from "../lib/tickets.js";
 import {
+  Avatar,
   ErrorNote,
   PriorityBadge,
+  SectionTitle,
   SourceBadge,
   StatusBadge,
   inputClass,
   secondaryButton,
 } from "../components/ui.jsx";
+import Icon from "../components/Icon.jsx";
 import { ReplyBox, Thread } from "../components/Conversation.jsx";
 
 /*
@@ -93,7 +96,7 @@ function TicketView({ ticketId }) {
   };
 
   if (error && !ticket) return <ErrorNote>{error}</ErrorNote>;
-  if (!ticket) return <p className="text-sm text-slate-500">Loading…</p>;
+  if (!ticket) return <p className="text-sm text-stone-500">Loading…</p>;
 
   const customerName = ticket.user?.name || ticket.user?.email || "Customer";
   const details = [
@@ -108,21 +111,40 @@ function TicketView({ ticketId }) {
 
   return (
     <div className="space-y-5">
-      <Link to="/" className="text-sm text-slate-600 hover:underline">
-        ← All tickets
+      <Link
+        to="/"
+        className="inline-flex items-center gap-1.5 rounded-lg text-sm font-medium text-stone-500 transition hover:text-ink"
+      >
+        <Icon name="arrowLeft" className="h-4 w-4" />
+        All tickets
       </Link>
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-5">
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-          <span className="text-sm font-semibold text-slate-500">{ticket.ticketNumber}</span>
-          <h1 className="min-w-0 break-words text-lg font-semibold tracking-tight">
-            {ticket.subject}
-          </h1>
+      <section className="rounded-2xl bg-white p-6 shadow-[0_1px_2px_rgba(17,24,39,0.04),0_8px_24px_-12px_rgba(17,24,39,0.08)] ring-1 ring-stone-200/80">
+        <div className="flex items-start gap-4">
+          <Avatar name={ticket.store?.name} size="h-12 w-12" tone="bg-stone-100 text-stone-600" />
+          <div className="min-w-0 flex-1">
+            <p className="font-mono text-xs font-medium text-stone-400">{ticket.ticketNumber}</p>
+            <h1 className="display mt-0.5 break-words text-3xl leading-tight text-ink">
+              {ticket.subject}
+            </h1>
+            <p className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-stone-500">
+              <span className="inline-flex items-center gap-1.5">
+                <Icon name="store" className="h-3.5 w-3.5 text-stone-400" />
+                {ticket.store?.name}
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <Icon name="clock" className="h-3.5 w-3.5 text-stone-400" />
+                Opened {clock(ticket.createdAt)}
+              </span>
+            </p>
+          </div>
+        </div>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
           <StatusBadge status={ticket.status} />
           <PriorityBadge priority={ticket.priority} />
           <SourceBadge source={ticket.source} />
         </div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-6 grid gap-4 border-t border-stone-100 pt-5 gap-3 sm:grid-cols-2 lg:grid-cols-4">
           <Field name="Assigned to">
             <select
               aria-label="Assigned to"
@@ -197,6 +219,7 @@ function TicketView({ ticketId }) {
             }
             className={`${secondaryButton} mt-3`}
           >
+            <Icon name="userCheck" className="h-4 w-4 text-stone-500" />
             Take this ticket
           </button>
         )}
@@ -208,29 +231,43 @@ function TicketView({ ticketId }) {
       {ticket.summary && (
         <section
           aria-label="AI summary"
-          className="rounded-2xl border border-orange-200 bg-orange-50 p-5"
+          className="rounded-2xl bg-accent/10 p-5 ring-1 ring-accent/30"
         >
-          <h2 className="text-sm font-semibold text-orange-900">What the assistant gathered</h2>
-          <p className="mt-1 whitespace-pre-wrap break-words text-sm">{ticket.summary}</p>
+          <h2 className="flex items-center gap-2 text-sm font-semibold text-accent-deep">
+            <Icon name="sparkles" className="h-4 w-4" />
+            What the assistant gathered
+          </h2>
+          <p className="mt-2 whitespace-pre-wrap break-words text-[15px] leading-relaxed text-stone-800">
+            {ticket.summary}
+          </p>
         </section>
       )}
 
-      <details className="rounded-2xl border border-slate-200 bg-white">
-        <summary className="cursor-pointer px-5 py-3 text-sm font-medium">
-          Store and requester
+      <details className="group rounded-2xl bg-white ring-1 ring-stone-200/80">
+        <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-3.5 text-sm font-medium [&::-webkit-details-marker]:hidden">
+          <span className="flex items-center gap-2">
+            <Icon name="info" className="h-4 w-4 text-stone-400" />
+            Store and requester
+          </span>
+          <Icon
+            name="chevronDown"
+            className="h-4 w-4 text-stone-400 transition group-open:rotate-180"
+          />
         </summary>
-        <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-4 gap-y-1.5 border-t border-slate-200 px-5 py-3 text-sm">
+        <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-2 border-t border-stone-100 px-5 py-4 text-sm">
           {details.map(([k, v]) => (
             <Fragment key={k}>
-              <dt className="text-slate-500">{k}</dt>
+              <dt className="text-stone-500">{k}</dt>
               <dd className="break-words">{v}</dd>
             </Fragment>
           ))}
         </dl>
       </details>
 
-      <section className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
-        <h2 className="mb-4 text-sm font-semibold">Conversation</h2>
+      <section className="rounded-2xl bg-white p-6 ring-1 ring-stone-200/80">
+        <div className="mb-5">
+          <SectionTitle icon="headset">Conversation</SectionTitle>
+        </div>
         {ticket.transcript?.length > 0 && (
           <>
             <ol aria-label="AI chat transcript" className="flex flex-col gap-3 text-sm">
@@ -241,14 +278,14 @@ function TicketView({ ticketId }) {
                     key={i}
                     className={`flex flex-col ${isCustomer ? "items-start" : "items-end"}`}
                   >
-                    <span className="mb-1 px-1 text-xs text-slate-500">
+                    <span className="mb-1 px-1 text-xs text-stone-500">
                       {isCustomer ? customerName : "Assistant"}
                     </span>
                     <div
                       className={`max-w-[85%] whitespace-pre-wrap break-words rounded-2xl px-4 py-2.5 ${
                         isCustomer
-                          ? "rounded-tl-sm border border-slate-200 bg-white text-slate-900"
-                          : "rounded-tr-sm bg-indigo-600 text-white"
+                          ? "rounded-tl-md bg-stone-100 text-ink"
+                          : "rounded-tr-md bg-accent/15 text-stone-900 ring-1 ring-accent/25"
                       }`}
                     >
                       {turn.content}
@@ -257,39 +294,45 @@ function TicketView({ ticketId }) {
                 );
               })}
             </ol>
-            <div className="my-4 flex items-center gap-3 text-xs text-slate-500">
-              <span className="h-px flex-1 bg-slate-200" />
+            <div className="my-6 flex items-center gap-3 text-xs font-medium text-stone-400">
+              <span className="h-px flex-1 bg-stone-200" />
               Handed off to the team
-              <span className="h-px flex-1 bg-slate-200" />
+              <span className="h-px flex-1 bg-stone-200" />
             </div>
           </>
         )}
         {ticket.messages.length === 0 ? (
-          !ticket.transcript?.length && <p className="text-sm text-slate-500">No messages yet.</p>
+          !ticket.transcript?.length && <p className="text-sm text-stone-500">No messages yet.</p>
         ) : (
           <Thread messages={ticket.messages} />
         )}
 
-        <div className="mt-6 border-t border-slate-200 pt-5">
-          <div role="tablist" aria-label="Reply type" className="mb-3 flex gap-1">
+        <div className="mt-8 border-t border-stone-100 pt-6">
+          <div
+            role="tablist"
+            aria-label="Reply type"
+            className="mb-4 inline-flex gap-1 rounded-xl bg-stone-100 p-1"
+          >
             {[
-              ["reply", "Reply to customer"],
-              ["note", "Internal note"],
-            ].map(([id, text]) => (
+              ["reply", "Reply to customer", "send"],
+              ["note", "Internal note", "note"],
+            ].map(([id, text, icon]) => (
               <button
                 key={id}
                 type="button"
                 role="tab"
                 aria-selected={mode === id}
                 onClick={() => setMode(id)}
-                className={`rounded-lg px-3 py-1.5 text-sm ${mode === id ? "bg-slate-900 font-semibold text-white" : "hover:bg-slate-200"}`}
+                className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-sm transition ${mode === id ? "bg-white font-semibold text-ink shadow-sm" : "text-stone-500 hover:text-ink"}`}
               >
+                <Icon name={icon} className="h-3.5 w-3.5" />
                 {text}
               </button>
             ))}
           </div>
           {mode === "note" && (
-            <p className="mb-3 text-xs text-amber-800">
+            <p className="mb-3 flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900 ring-1 ring-inset ring-amber-200">
+              <Icon name="lock" className="h-3.5 w-3.5" />
               Only support staff see internal notes. The customer is not notified.
             </p>
           )}
@@ -300,7 +343,7 @@ function TicketView({ ticketId }) {
             allowImages={mode === "reply"}
           >
             {mode === "reply" && (
-              <label className="flex items-center gap-2 text-sm text-slate-600">
+              <label className="flex items-center gap-2 text-sm text-stone-600">
                 After sending, mark as
                 <select
                   value={after}
@@ -324,7 +367,7 @@ function TicketView({ ticketId }) {
 
 function Field({ name, children }) {
   return (
-    <label className="text-xs font-medium text-slate-500">
+    <label className="text-xs font-medium text-stone-500">
       {name}
       <div className="mt-1">{children}</div>
     </label>
