@@ -95,6 +95,7 @@ function TicketView({ ticketId }) {
   if (error && !ticket) return <ErrorNote>{error}</ErrorNote>;
   if (!ticket) return <p className="text-sm text-slate-500">Loading…</p>;
 
+  const customerName = ticket.user?.name || ticket.user?.email || "Customer";
   const details = [
     ["Store", ticket.store?.name],
     ["Store ID", ticket.store?.id],
@@ -228,31 +229,43 @@ function TicketView({ ticketId }) {
         </dl>
       </details>
 
-      {ticket.transcript?.length > 0 && (
-        <details open className="rounded-2xl border border-slate-200 bg-white">
-          <summary className="cursor-pointer px-5 py-3 text-sm font-medium">
-            Earlier chat with the assistant ({ticket.transcript.length} messages)
-          </summary>
-          <ol
-            aria-label="AI chat transcript"
-            className="max-h-80 space-y-2 overflow-y-auto border-t border-slate-200 px-5 py-3 text-sm"
-          >
-            {ticket.transcript.map((turn, i) => (
-              <li key={i}>
-                <span className="font-medium text-slate-500">
-                  {turn.role === "user" ? "Customer" : "Assistant"}:{" "}
-                </span>
-                <span className="whitespace-pre-wrap break-words">{turn.content}</span>
-              </li>
-            ))}
-          </ol>
-        </details>
-      )}
-
       <section className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
         <h2 className="mb-4 text-sm font-semibold">Conversation</h2>
+        {ticket.transcript?.length > 0 && (
+          <>
+            <ol aria-label="AI chat transcript" className="flex flex-col gap-3 text-sm">
+              {ticket.transcript.map((turn, i) => {
+                const isCustomer = turn.role === "user";
+                return (
+                  <li
+                    key={i}
+                    className={`flex flex-col ${isCustomer ? "items-start" : "items-end"}`}
+                  >
+                    <span className="mb-1 px-1 text-xs text-slate-500">
+                      {isCustomer ? customerName : "Assistant"}
+                    </span>
+                    <div
+                      className={`max-w-[85%] whitespace-pre-wrap break-words rounded-2xl px-4 py-2.5 ${
+                        isCustomer
+                          ? "rounded-tl-sm border border-slate-200 bg-white text-slate-900"
+                          : "rounded-tr-sm bg-indigo-600 text-white"
+                      }`}
+                    >
+                      {turn.content}
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+            <div className="my-4 flex items-center gap-3 text-xs text-slate-500">
+              <span className="h-px flex-1 bg-slate-200" />
+              Handed off to the team
+              <span className="h-px flex-1 bg-slate-200" />
+            </div>
+          </>
+        )}
         {ticket.messages.length === 0 ? (
-          <p className="text-sm text-slate-500">No messages yet.</p>
+          !ticket.transcript?.length && <p className="text-sm text-slate-500">No messages yet.</p>
         ) : (
           <Thread messages={ticket.messages} />
         )}
