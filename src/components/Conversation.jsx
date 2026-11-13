@@ -19,17 +19,17 @@ export function Thread({ messages }) {
       {messages.map((m) => {
         const ours = m.senderType === "staff";
         const tone = m.isInternal
-          ? "bg-amber-50 text-stone-900 ring-1 ring-inset ring-amber-200"
+          ? "bg-amber-50 text-slate-900 ring-1 ring-inset ring-amber-200"
           : ours
             ? "bg-ink text-white"
-            : "bg-stone-100 text-ink";
-        const metaTone = ours && !m.isInternal ? "text-white/60" : "text-stone-500";
+            : "bg-slate-100 text-ink";
+        const metaTone = ours && !m.isInternal ? "text-white/60" : "text-slate-500";
         return (
           <li key={m.id} className={`flex items-end gap-2.5 ${ours ? "flex-row-reverse" : ""}`}>
             <Avatar
               name={m.senderName}
               size="h-8 w-8"
-              tone={ours ? "bg-accent/15 text-accent-deep" : "bg-stone-100 text-stone-600"}
+              tone={ours ? "bg-accent/15 text-accent-deep" : "bg-slate-100 text-slate-600"}
             />
             <div
               className={`max-w-[80%] rounded-2xl px-4 py-3 ${tone} ${ours ? "rounded-br-md" : "rounded-bl-md"}`}
@@ -67,8 +67,14 @@ export function Thread({ messages }) {
 }
 
 // Reply box. onSend({ message, attachments: [ids] }) -> { ok, error? }. Cleared only when the send worked.
-export function ReplyBox({ onSend, uploadUrl, allowImages = true, children }) {
+export function ReplyBox({ onSend, uploadUrl, allowImages = true, insert, children }) {
   const [text, setText] = useState("");
+  // Text pushed in from the sidebar (insert = { id, text }); applied once per id while rendering
+  const [applied, setApplied] = useState(insert?.id);
+  if (insert && insert.id !== applied) {
+    setApplied(insert.id);
+    setText((t) => (t.trim() ? `${t.trimEnd()}\n\n${insert.text}` : insert.text));
+  }
   const [images, setImages] = useState([]);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -127,7 +133,7 @@ export function ReplyBox({ onSend, uploadUrl, allowImages = true, children }) {
               <img
                 src={i.url}
                 alt={i.name || "Image"}
-                className="h-16 w-16 rounded-xl object-cover ring-1 ring-stone-200"
+                className="h-16 w-16 rounded-xl object-cover ring-1 ring-slate-200"
               />
               <button
                 type="button"
@@ -159,7 +165,7 @@ export function ReplyBox({ onSend, uploadUrl, allowImages = true, children }) {
               disabled={uploading || busy || images.length >= MAX_ATTACHMENTS}
               onClick={() => input.current?.click()}
             >
-              <Icon name="paperclip" className="h-4 w-4 text-stone-500" />
+              <Icon name="paperclip" className="h-4 w-4 text-slate-500" />
               {uploading ? "Uploading…" : "Attach image"}
             </button>
           </>

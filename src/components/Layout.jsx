@@ -4,6 +4,7 @@ import { apiGet } from "../lib/api.js";
 import { useSession } from "../lib/auth.js";
 import { signOut } from "../lib/api.js";
 import { SUMMARY_API, usePoll } from "../lib/tickets.js";
+import Background from "./Background.jsx";
 import Icon from "./Icon.jsx";
 import { Avatar, Logo, secondaryButton } from "./ui.jsx";
 
@@ -18,36 +19,50 @@ export default function Layout() {
   const user = session?.user;
 
   return (
-    <div className="min-h-screen">
-      <header className="sticky top-0 z-20 border-b border-stone-200/80 bg-white/85 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-5">
+    <div className="relative min-h-screen">
+      <Background />
+      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-[90rem] items-center gap-6 px-5">
           <Link to="/" className="flex items-center gap-2.5 rounded-lg">
             <Logo />
             <span className="text-[15px] font-semibold tracking-tight">
-              TSS <span className="font-normal text-stone-500">Helpdesk</span>
+              TSS <span className="font-normal text-slate-500">Helpdesk</span>
             </span>
           </Link>
-          <nav className="flex items-center gap-2 text-sm">
+          <nav className="flex items-center gap-6 text-sm">
             <NavLink
               to="/"
               end
               className={({ isActive }) =>
-                `inline-flex items-center gap-2 rounded-xl px-3 py-1.5 font-medium transition ${
+                `relative inline-flex h-16 items-center gap-2 px-1 font-medium transition ${
                   isActive
-                    ? "bg-ink text-white"
-                    : "text-stone-600 hover:bg-stone-100 hover:text-ink"
+                    ? "text-ink after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-accent"
+                    : "text-slate-500 hover:text-ink"
                 }`
               }
             >
               <Icon name="inbox" className="h-4 w-4" />
               Tickets
             </NavLink>
+            <NavLink
+              to="/problems"
+              className={({ isActive }) =>
+                `relative inline-flex h-16 items-center gap-2 px-1 font-medium transition ${
+                  isActive
+                    ? "text-ink after:absolute after:inset-x-0 after:bottom-0 after:h-0.5 after:bg-accent"
+                    : "text-slate-500 hover:text-ink"
+                }`
+              }
+            >
+              <Icon name="book" className="h-4 w-4" />
+              Common problems
+            </NavLink>
             {waiting > 0 && (
               <span
                 title="Open and unassigned"
-                className="inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700 ring-1 ring-inset ring-red-600/15"
+                className="inline-flex items-center gap-1.5 text-[13px] font-medium text-red-600"
               >
-                <span className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                <Icon name="alert" className="h-4 w-4" />
                 {waiting} waiting
               </span>
             )}
@@ -59,16 +74,16 @@ export default function Layout() {
                 size="h-8 w-8"
                 tone="bg-accent/15 text-accent-deep"
               />
-              <span className="text-stone-600">{user?.email}</span>
+              <span className="text-slate-600">{user?.email}</span>
             </span>
             <button type="button" onClick={signOut} className={secondaryButton}>
-              <Icon name="logout" className="h-4 w-4 text-stone-500" />
+              <Icon name="logout" className="h-4 w-4 text-slate-500" />
               Sign out
             </button>
           </div>
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-5 py-8">
+      <main className="relative z-10 mx-auto max-w-[90rem] px-5 py-8">
         <Outlet />
       </main>
     </div>

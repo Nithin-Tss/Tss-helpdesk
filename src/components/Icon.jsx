@@ -1,5 +1,31 @@
 // Small stroke icon set (24px grid) so the helpdesk never relies on emoji or text glyphs.
 const PATHS = {
+  circle: <circle cx="12" cy="12" r="8" />,
+  progress: (
+    <>
+      <circle cx="12" cy="12" r="8" />
+      <path d="M12 4a8 8 0 0 1 0 16Z" fill="currentColor" />
+    </>
+  ),
+  pause: (
+    <>
+      <circle cx="12" cy="12" r="8" />
+      <path d="M10 9v6M14 9v6" />
+    </>
+  ),
+  checkCircle: (
+    <>
+      <circle cx="12" cy="12" r="8" />
+      <path d="m8.5 12.3 2.5 2.5 4.5-5" />
+    </>
+  ),
+  archive: (
+    <>
+      <rect x="3" y="4" width="18" height="4.5" rx="1" />
+      <path d="M5 8.5V19h14V8.5M10 12.5h4" />
+    </>
+  ),
+  signal: <path d="M5 20v-4M11 20V10M17 20V4" />,
   search: (
     <>
       <circle cx="11" cy="11" r="7" />

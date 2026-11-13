@@ -66,7 +66,7 @@ export default function Login() {
           </div>
           <div>
             <h1 className="display text-4xl">Welcome back</h1>
-            <p className="mt-1.5 text-sm text-stone-500">
+            <p className="mt-1.5 text-sm text-slate-500">
               Sign in with your support agent account.
             </p>
           </div>
@@ -75,7 +75,7 @@ export default function Login() {
             <span className="relative mt-1.5 block">
               <Icon
                 name="mail"
-                className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400"
+                className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
               />
               <input
                 type="email"
@@ -92,7 +92,7 @@ export default function Login() {
             <span className="relative mt-1.5 block">
               <Icon
                 name="lock"
-                className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400"
+                className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
               />
               <input
                 type="password"
@@ -110,7 +110,7 @@ export default function Login() {
               <span className="relative mt-1.5 block">
                 <Icon
                   name="shield"
-                  className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400"
+                  className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
                 />
                 <input
                   inputMode="numeric"

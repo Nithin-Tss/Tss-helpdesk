@@ -22,30 +22,37 @@ export const STATUS_LABEL = {
   closed: "Closed",
 };
 export const STATUS_TONE = {
-  open: "bg-emerald-50 text-emerald-800 ring-emerald-600/15",
-  in_progress: "bg-sky-50 text-sky-800 ring-sky-600/15",
-  waiting_on_customer: "bg-amber-50 text-amber-900 ring-amber-600/20",
-  resolved: "bg-stone-100 text-stone-600 ring-stone-500/15",
-  closed: "bg-stone-100 text-stone-500 ring-stone-500/15",
+  open: "text-emerald-700",
+  in_progress: "text-indigo-700",
+  waiting_on_customer: "text-amber-700",
+  resolved: "text-slate-500",
+  closed: "text-slate-400",
+};
+export const STATUS_ICON = {
+  open: "circle",
+  in_progress: "progress",
+  waiting_on_customer: "pause",
+  resolved: "checkCircle",
+  closed: "archive",
 };
 export const STATUS_DOT = {
   open: "bg-emerald-500",
   in_progress: "bg-sky-500",
   waiting_on_customer: "bg-amber-500",
-  resolved: "bg-stone-400",
-  closed: "bg-stone-300",
+  resolved: "bg-slate-400",
+  closed: "bg-slate-300",
 };
 export const PRIORITIES = ["low", "normal", "high", "urgent"];
 export const PRIORITY_LABEL = { low: "Low", normal: "Normal", high: "High", urgent: "Urgent" };
 export const PRIORITY_TONE = {
-  low: "bg-stone-50 text-stone-500 ring-stone-400/20",
-  normal: "bg-stone-50 text-stone-700 ring-stone-400/25",
-  high: "bg-orange-50 text-orange-800 ring-orange-600/20",
-  urgent: "bg-red-50 text-red-700 ring-red-600/20",
+  low: "text-slate-400",
+  normal: "text-slate-500",
+  high: "text-orange-600",
+  urgent: "text-red-600",
 };
 export const PRIORITY_DOT = {
-  low: "bg-stone-300",
-  normal: "bg-stone-400",
+  low: "bg-slate-300",
+  normal: "bg-slate-400",
   high: "bg-orange-500",
   urgent: "bg-red-500",
 };
