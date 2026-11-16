@@ -14,8 +14,8 @@ const focus = "focus-visible:outline-none focus-visible:ring-2 focus-visible:rin
 
 export const inputClass =
   "field rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-ink transition placeholder:text-slate-400 hover:border-slate-300 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 disabled:opacity-60";
-export const primaryButton = `inline-flex items-center justify-center gap-2 rounded-md bg-accent px-4 py-2 text-sm font-medium text-white transition hover:bg-accent-deep disabled:cursor-not-allowed disabled:opacity-50 ${focus}`;
-export const secondaryButton = `inline-flex items-center justify-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium text-slate-700 transition hover:bg-slate-100 hover:text-ink disabled:cursor-not-allowed disabled:opacity-40 ${focus}`;
+export const primaryButton = `inline-flex items-center justify-center gap-2 rounded-lg bg-linear-to-b from-accent to-accent-deep px-4 py-2 text-sm font-medium tracking-[0.005em] text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.22),inset_0_0_0_1px_rgb(0_0_0/0.1),0_1px_2px_rgb(15_23_42/0.18),0_6px_14px_-6px_rgb(79_70_229/0.55)] transition hover:-translate-y-px hover:brightness-110 active:translate-y-0 active:brightness-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none ${focus}`;
+export const secondaryButton = `inline-flex items-center justify-center gap-2 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-700 ring-1 ring-inset ring-slate-200 transition hover:bg-white hover:text-ink hover:ring-slate-300 hover:shadow-sm disabled:cursor-not-allowed disabled:opacity-40 ${focus}`;
 
 const flat = "inline-flex items-center gap-1.5 whitespace-nowrap text-[13px] font-medium";
 
