@@ -22,11 +22,11 @@ export const STATUS_LABEL = {
   closed: "Closed",
 };
 export const STATUS_TONE = {
-  open: "text-emerald-700",
-  in_progress: "text-indigo-700",
-  waiting_on_customer: "text-amber-700",
-  resolved: "text-slate-500",
-  closed: "text-slate-400",
+  open: "text-state-open",
+  in_progress: "text-state-progress",
+  waiting_on_customer: "text-state-waiting",
+  resolved: "text-state-done",
+  closed: "text-state-closed",
 };
 export const STATUS_ICON = {
   open: "circle",
@@ -36,25 +36,25 @@ export const STATUS_ICON = {
   closed: "archive",
 };
 export const STATUS_DOT = {
-  open: "bg-emerald-500",
-  in_progress: "bg-sky-500",
-  waiting_on_customer: "bg-amber-500",
-  resolved: "bg-slate-400",
-  closed: "bg-slate-300",
+  open: "bg-state-open",
+  in_progress: "bg-state-progress",
+  waiting_on_customer: "bg-state-waiting",
+  resolved: "bg-state-done",
+  closed: "bg-state-closed",
 };
 export const PRIORITIES = ["low", "normal", "high", "urgent"];
 export const PRIORITY_LABEL = { low: "Low", normal: "Normal", high: "High", urgent: "Urgent" };
 export const PRIORITY_TONE = {
-  low: "text-slate-400",
-  normal: "text-slate-500",
-  high: "text-orange-600",
-  urgent: "text-red-600",
+  low: "text-faint",
+  normal: "text-muted",
+  high: "text-high",
+  urgent: "text-urgent",
 };
 export const PRIORITY_DOT = {
-  low: "bg-slate-300",
-  normal: "bg-slate-400",
-  high: "bg-orange-500",
-  urgent: "bg-red-500",
+  low: "bg-faint",
+  normal: "bg-muted",
+  high: "bg-high",
+  urgent: "bg-urgent",
 };
 export const CATEGORIES = ["payments", "shipping", "domains", "themes", "account", "other"];
 export const CATEGORY_LABEL = {

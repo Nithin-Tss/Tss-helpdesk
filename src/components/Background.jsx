@@ -1,19 +1,20 @@
 import { useEffect, useRef } from "react";
 
 /*
- * Decorative, interactive background. Layers, back to front:
- *  - soft colour orbs (CSS, behind the page content)
- *  - drawn above the content on a click-through canvas, so it is visible over cards too:
- *  - a glow and ring that follow the pointer
- *  - a network of coloured dots; dots near the pointer link to it and move away from it
- *  - click or tap sends a ripple that shoves nearby dots outward
- * Purely visual: ignores pointer events and stays still when the visitor prefers reduced motion.
+ * The desk under the pad. A carbon-ruled ground that answers the pointer the way carbon paper answers a pen:
+ *  - the ruling bows toward the pointer and darkens around it, as if pressed
+ *  - moving leaves a short carbon trace that fades within a second and a half
+ *  - a click presses a small ring into the sheet
+ * It sits behind the opaque sheets, so it shows in the margins and never under text people read.
+ * It only animates while something is changing, and under reduced motion it is a still ruling.
  */
-const LINK = 140; // max distance between two linked dots
-const REACH = 190; // pointer influence radius
-const PALETTE = ["79, 70, 229", "14, 165, 233", "139, 92, 246", "100, 116, 139"]; // indigo, sky, violet, slate
+const GAP = 28; // distance between ruled lines
+const STEP = 10; // horizontal resolution of a bent line
+const SIGMA = 95; // reach of the pointer's pressure
+const TRACE_MS = 1400;
+const INK = "29, 43, 107"; // carbon blue
 
-export default function Background({ className = "" }) {
+export default function Background() {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -21,192 +22,157 @@ export default function Background({ className = "" }) {
     const ctx = canvas?.getContext("2d");
     if (!ctx) return undefined;
     const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const pointer = { x: -9999, y: -9999, gx: -9999, gy: -9999, on: false };
-    let dots = [];
-    let ripples = [];
+    const pen = { x: 0, y: 0, sx: 0, sy: 0, on: false, press: 0 };
+    let trace = [];
+    let rings = [];
     let w = 0;
     let h = 0;
-    let t = 0;
     let raf = 0;
 
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
       w = window.innerWidth;
       h = window.innerHeight;
-      // CSS size must equal the viewport; the bitmap is dpr times larger for sharpness
       canvas.style.width = `${w}px`;
       canvas.style.height = `${h}px`;
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      const count = Math.min(Math.round((w * h) / 13000), 130);
-      dots = Array.from({ length: count }, () => ({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.35,
-        vy: (Math.random() - 0.5) * 0.35,
-        r: 1.3 + Math.random() * 1.9,
-        c: PALETTE[Math.floor(Math.random() * PALETTE.length)],
-        phase: Math.random() * Math.PI * 2,
-      }));
     };
 
-    const glow = (x, y, r, c, a) => {
-      const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-      g.addColorStop(0, `rgba(${c}, ${a})`);
-      g.addColorStop(1, `rgba(${c}, 0)`);
-      ctx.fillStyle = g;
-      ctx.fillRect(x - r, y - r, r * 2, r * 2);
+    const pull = (x, y) => {
+      if (!pen.press) return 0;
+      const dx = x - pen.sx;
+      const dy = y - pen.sy;
+      return pen.press * Math.exp(-(dx * dx + dy * dy) / (2 * SIGMA * SIGMA));
     };
 
-    const step = () => {
-      t += 0.01;
-      // the glow trails the pointer
-      pointer.gx += (pointer.x - pointer.gx) * 0.12;
-      pointer.gy += (pointer.y - pointer.gy) * 0.12;
-      for (const d of dots) {
-        d.x += d.vx;
-        d.y += d.vy;
-        if (d.x < 0 || d.x > w) d.vx *= -1;
-        if (d.y < 0 || d.y > h) d.vy *= -1;
-        if (pointer.on) {
-          const dx = d.x - pointer.x;
-          const dy = d.y - pointer.y;
-          const dist = Math.hypot(dx, dy);
-          if (dist < REACH && dist > 0) {
-            const push = ((REACH - dist) / REACH) * 1.1;
-            d.x += (dx / dist) * push;
-            d.y += (dy / dist) * push;
-          }
-        }
-        for (const rp of ripples) {
-          const dx = d.x - rp.x;
-          const dy = d.y - rp.y;
-          const dist = Math.hypot(dx, dy);
-          if (dist > 0 && Math.abs(dist - rp.r) < 40) {
-            d.x += (dx / dist) * 2.2 * rp.life;
-            d.y += (dy / dist) * 2.2 * rp.life;
-          }
-        }
-      }
-      for (const rp of ripples) {
-        rp.r += 7;
-        rp.life -= 0.018;
-      }
-      ripples = ripples.filter((rp) => rp.life > 0);
-    };
-
-    const draw = () => {
+    const draw = (now) => {
       ctx.clearRect(0, 0, w, h);
-      if (pointer.on) {
-        glow(pointer.gx, pointer.gy, 200, "79, 70, 229", 0.12);
-        // marks the exact pointer position so the effect visibly follows the cursor
-        ctx.strokeStyle = "rgba(79, 70, 229, 0.55)";
+      ctx.lineWidth = 1;
+      for (let y0 = GAP; y0 < h; y0 += GAP) {
+        const near = pen.press > 0.01 && Math.abs(y0 - pen.sy) < SIGMA * 3;
+        if (!near) {
+          ctx.strokeStyle = `rgba(${INK}, 0.07)`;
+          ctx.beginPath();
+          ctx.moveTo(0, y0 + 0.5);
+          ctx.lineTo(w, y0 + 0.5);
+          ctx.stroke();
+          continue;
+        }
+        // bent line: each short segment drawn with its own depth of ink
+        let px = 0;
+        let py = y0;
+        for (let x = STEP; x <= w + STEP; x += STEP) {
+          const f = pull(x, y0);
+          const y = y0 + (pen.sy - y0) * 0.22 * f;
+          ctx.strokeStyle = `rgba(${INK}, ${0.07 + 0.3 * f})`;
+          ctx.beginPath();
+          ctx.moveTo(px, py + 0.5);
+          ctx.lineTo(x, y + 0.5);
+          ctx.stroke();
+          px = x;
+          py = y;
+        }
+      }
+
+      // the carbon trace, oldest first so the fresh end sits on top
+      ctx.lineCap = "round";
+      for (let i = 1; i < trace.length; i++) {
+        const a = trace[i - 1];
+        const b = trace[i];
+        const life = 1 - (now - b.t) / TRACE_MS;
+        if (life <= 0) continue;
+        ctx.strokeStyle = `rgba(${INK}, ${0.34 * life})`;
+        ctx.lineWidth = 0.6 + 1.2 * life;
+        ctx.beginPath();
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
+        ctx.stroke();
+      }
+
+      for (const r of rings) {
+        const k = Math.min((now - r.t) / 700, 1);
+        const ease = 1 - (1 - k) ** 3;
+        ctx.strokeStyle = `rgba(${INK}, ${0.4 * (1 - k)})`;
         ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.arc(pointer.x, pointer.y, 9 + 2 * Math.sin(t * 4), 0, Math.PI * 2);
-        ctx.stroke();
-      }
-
-      for (let i = 0; i < dots.length; i++) {
-        const a = dots[i];
-        for (let j = i + 1; j < dots.length; j++) {
-          const b = dots[j];
-          const dist = Math.hypot(a.x - b.x, a.y - b.y);
-          if (dist < LINK) {
-            ctx.strokeStyle = `rgba(${a.c}, ${0.26 * (1 - dist / LINK)})`;
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(a.x, a.y);
-            ctx.lineTo(b.x, b.y);
-            ctx.stroke();
-          }
-        }
-        const pd = pointer.on ? Math.hypot(a.x - pointer.x, a.y - pointer.y) : Infinity;
-        if (pd < REACH * 1.4) {
-          ctx.strokeStyle = `rgba(${a.c}, ${0.7 * (1 - pd / (REACH * 1.4))})`;
-          ctx.lineWidth = 1.2;
-          ctx.beginPath();
-          ctx.moveTo(a.x, a.y);
-          ctx.lineTo(pointer.x, pointer.y);
-          ctx.stroke();
-        }
-        const near = pd < REACH;
-        const pulse = 0.6 + 0.4 * Math.sin(t * 3 + a.phase);
-        if (near) glow(a.x, a.y, a.r * 6, a.c, 0.35);
-        ctx.fillStyle = `rgba(${a.c}, ${near ? 0.95 : 0.35 + 0.25 * pulse})`;
-        ctx.beginPath();
-        ctx.arc(a.x, a.y, near ? a.r * 1.4 : a.r, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      for (const rp of ripples) {
-        ctx.strokeStyle = `rgba(79, 70, 229, ${0.35 * rp.life})`;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI * 2);
+        ctx.arc(r.x, r.y, 6 + 30 * ease, 0, Math.PI * 2);
         ctx.stroke();
       }
     };
 
-    const loop = () => {
-      step();
-      draw();
-      raf = requestAnimationFrame(loop);
+    const frame = (now) => {
+      raf = 0;
+      // the pressure point trails the pointer slightly, so the ruling eases rather than snaps
+      pen.sx += (pen.x - pen.sx) * 0.18;
+      pen.sy += (pen.y - pen.sy) * 0.18;
+      pen.press += ((pen.on ? 1 : 0) - pen.press) * 0.12;
+      trace = trace.filter((p) => now - p.t < TRACE_MS);
+      rings = rings.filter((r) => now - r.t < 700);
+      draw(now);
+      const settling =
+        Math.abs(pen.x - pen.sx) > 0.3 ||
+        Math.abs(pen.y - pen.sy) > 0.3 ||
+        Math.abs((pen.on ? 1 : 0) - pen.press) > 0.005;
+      if (settling || trace.length || rings.length) raf = requestAnimationFrame(frame);
     };
-    const start = () => {
-      cancelAnimationFrame(raf);
-      if (still) draw();
-      else if (!document.hidden) loop();
+
+    const wake = () => {
+      if (!raf && !still && !document.hidden) raf = requestAnimationFrame(frame);
     };
+
     const move = (e) => {
-      if (!pointer.on) {
-        pointer.gx = e.clientX;
-        pointer.gy = e.clientY;
+      if (still || e.pointerType === "touch") return;
+      if (!pen.on) {
+        pen.sx = e.clientX;
+        pen.sy = e.clientY;
       }
-      pointer.on = true;
-      pointer.x = e.clientX;
-      pointer.y = e.clientY;
+      pen.on = true;
+      pen.x = e.clientX;
+      pen.y = e.clientY;
+      trace.push({ x: e.clientX, y: e.clientY, t: performance.now() });
+      if (trace.length > 80) trace.shift();
+      wake();
     };
     const leave = () => {
-      pointer.on = false;
+      pen.on = false;
+      wake();
     };
-    const click = (e) => {
-      if (!still) ripples.push({ x: e.clientX, y: e.clientY, r: 0, life: 1 });
+    const press = (e) => {
+      if (still) return;
+      rings.push({ x: e.clientX, y: e.clientY, t: performance.now() });
+      wake();
     };
     const onResize = () => {
       resize();
-      start();
+      draw(performance.now());
+    };
+    const onVisible = () => {
+      if (document.hidden) {
+        cancelAnimationFrame(raf);
+        raf = 0;
+      } else draw(performance.now());
     };
 
     resize();
-    start();
+    draw(performance.now());
     window.addEventListener("resize", onResize);
     window.addEventListener("pointermove", move, { passive: true });
-    window.addEventListener("pointerdown", click, { passive: true });
-    document.addEventListener("pointerleave", leave);
-    document.addEventListener("visibilitychange", start);
+    window.addEventListener("pointerdown", press, { passive: true });
+    document.documentElement.addEventListener("pointerleave", leave);
+    window.addEventListener("blur", leave);
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
       cancelAnimationFrame(raf);
       window.removeEventListener("resize", onResize);
       window.removeEventListener("pointermove", move);
-      window.removeEventListener("pointerdown", click);
-      document.removeEventListener("pointerleave", leave);
-      document.removeEventListener("visibilitychange", start);
+      window.removeEventListener("pointerdown", press);
+      document.documentElement.removeEventListener("pointerleave", leave);
+      window.removeEventListener("blur", leave);
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, []);
 
-  return (
-    <>
-      <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-        <div className="orb absolute -right-24 -top-24 h-[34rem] w-[34rem] rounded-full bg-indigo-500/20 blur-3xl" />
-        <div className="orb absolute -left-32 top-1/3 h-[30rem] w-[30rem] rounded-full bg-sky-400/20 blur-3xl [animation-delay:-6s]" />
-        <div className="orb absolute bottom-[-12rem] left-1/2 h-[34rem] w-[34rem] rounded-full bg-violet-500/15 blur-3xl [animation-delay:-12s]" />
-      </div>
-      <canvas
-        ref={ref}
-        aria-hidden="true"
-        className={`pointer-events-none fixed inset-0 z-0 ${className}`}
-      />
-    </>
-  );
+  return <canvas ref={ref} aria-hidden="true" className="pointer-events-none fixed inset-0 z-0" />;
 }

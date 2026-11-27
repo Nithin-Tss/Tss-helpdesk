@@ -1,18 +1,59 @@
 @import "tailwindcss";
 
+/*
+ * Duplicate Book. Every surface is a copy on a specific paper:
+ *   white  = the customer copy (what the merchant sees)
+ *   yellow = the office copy (internal, never leaves the pad)
+ *   pink   = the assistant's copy (what the AI gathered)
+ * Carbon blue is the writing ink: numbers, headings, the primary action and focus.
+ */
 @theme {
-  --font-sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --color-ink: #0f172a;
-  --color-accent: #4f46e5;
-  --color-accent-deep: #4338ca;
-  --color-paper: #f8fafc;
+  --font-sans: "Public Sans", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --color-desk: #f3f1ec;
+  --color-sheet: #ffffff;
+  --color-ink: #20201e;
+  --color-carbon: #1d2b6b;
+  --color-carbon-deep: #141f52;
+  --color-office: #fff4b8;
+  --color-office-edge: #e6d68a;
+  --color-assistant: #f9d7dd;
+  --color-assistant-edge: #e8b4be;
+
+  /* Warm greys mixed from ink, so nothing drifts cool */
+  --color-line: #dcd8cf;
+  --color-line-strong: #c4bfb3;
+  --color-muted: #66625a;
+  --color-faint: #736f66;
+  --color-wash: #f7f5f0;
+
+  /* Ticket state: hue is reserved for these */
+  --color-state-open: #1c6b3c;
+  --color-state-progress: #1d2b6b;
+  --color-state-waiting: #8a5200;
+  --color-state-done: #66625a;
+  --color-state-closed: #736f66;
+  --color-urgent: #b3261e;
+  --color-high: #a64b0a;
+
+  --shadow-sheet: 0 1px 0 rgb(32 32 30 / 0.04), 0 1px 3px rgb(32 32 30 / 0.05);
+  --shadow-lift: 0 6px 16px -6px rgb(32 32 30 / 0.18), 0 1px 2px rgb(32 32 30 / 0.06);
 }
 
 html {
   font-family: var(--font-sans);
-  font-feature-settings: "ss01", "cv11";
+  font-feature-settings: "tnum" 0;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: var(--color-desk);
+  color: var(--color-ink);
+  accent-color: var(--color-carbon);
+  caret-color: var(--color-carbon);
+  scrollbar-color: var(--color-line-strong) transparent;
+}
+
+body {
+  background: var(--color-desk);
 }
 
 button,
@@ -22,72 +63,60 @@ textarea {
   font-family: inherit;
 }
 
-.display {
-  font-family: var(--font-sans);
-  font-weight: 650;
-  letter-spacing: -0.025em;
+.tnum {
+  font-variant-numeric: tabular-nums;
 }
 
-body {
-  background:
-    radial-gradient(circle at 1px 1px, rgb(100 116 139 / 0.18) 1px, transparent 0) 0 0 / 22px 22px,
-    radial-gradient(
-      55rem 30rem at 90% -6rem,
-      color-mix(in srgb, var(--color-accent) 18%, transparent),
-      transparent
-    ),
-    radial-gradient(
-      45rem 28rem at -8% 8rem,
-      color-mix(in srgb, #0ea5e9 12%, transparent),
-      transparent
-    ),
-    radial-gradient(
-      40rem 24rem at 60% 110%,
-      color-mix(in srgb, var(--color-accent) 10%, transparent),
-      transparent
-    ),
-    var(--color-paper);
-  background-attachment: fixed;
-  color: var(--color-ink);
-}
-
-/* Selects share the input look but draw their own chevron */
+/* Selects share the field look but draw their own chevron in ink */
 select.field {
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2378716c' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2366625a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 0.65rem center;
-  background-size: 1rem;
-  padding-right: 2.2rem;
+  background-position: right 0.6rem center;
+  background-size: 0.95rem;
+  padding-right: 2.1rem;
 }
 
 ::selection {
-  background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+  background: var(--color-office);
+  color: var(--color-ink);
 }
 
-@keyframes orb-drift {
-  0%,
-  100% {
-    transform: translate(0, 0);
-  }
-  50% {
-    transform: translate(40px, 30px);
-  }
+:focus-visible {
+  outline: 2px solid var(--color-carbon);
+  outline-offset: 2px;
 }
 
-.orb {
-  animation: orb-drift 18s ease-in-out infinite;
+a {
+  text-underline-offset: 3px;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .orb {
-    animation: none;
-  }
+/* The tear line between stubs on the pad */
+.perf {
+  background-image: linear-gradient(90deg, var(--color-line-strong) 50%, transparent 0);
+  background-size: 8px 1px;
+  background-repeat: repeat-x;
+  background-position: 0 100%;
 }
 
-/* Cards are frosted glass so the animated background shows through softly behind the content */
-main .bg-white:not(input, select, textarea, button) {
-  background-color: rgb(255 255 255 / 0.72);
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+/* Office copy: faint ruling like a carbon pad's yellow sheet */
+.ruled {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0 23px,
+    rgb(32 32 30 / 0.06) 23px 24px
+  );
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-line-strong);
+  border-radius: 10px;
+  border: 2px solid var(--color-desk);
+}
+::-webkit-scrollbar-track {
+  background: transparent;
 }

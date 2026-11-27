@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { apiGet } from "../lib/api.js";
 import {
@@ -16,10 +16,9 @@ import {
   usePoll,
 } from "../lib/tickets.js";
 import {
-  Avatar,
   ErrorNote,
+  PadNumber,
   PriorityBadge,
-  SectionTitle,
   SourceBadge,
   StatusBadge,
   inputClass,
@@ -36,6 +35,18 @@ const greeting = () => {
 
 const FILTER_KEYS = ["status", "priority", "category", "assigned", "q"];
 
+// Saved views across the top of the pad. Each is a complete filter set; counts come from the server.
+const VIEWS = [
+  { id: "active", text: "All active", filters: { status: "active" } },
+  { id: "reply", text: "Needs a reply", filters: { status: "open", assigned: "unassigned" } },
+  { id: "mine", text: "Assigned to me", filters: { status: "active", assigned: "me" } },
+  { id: "urgent", text: "Urgent", filters: { status: "active", priority: "urgent" } },
+  { id: "waiting", text: "Waiting on customer", filters: { status: "waiting_on_customer" } },
+];
+const EMPTY = { status: "", priority: "", category: "", assigned: "", q: "" };
+
+const sameFilters = (a, b) => FILTER_KEYS.every((k) => (a[k] || "") === (b[k] || ""));
+
 export default function Inbox() {
   const [params, setParams] = useSearchParams();
   const user = useSession()?.user;
@@ -49,6 +60,7 @@ export default function Inbox() {
   };
   const page = Math.max(Number(params.get("page")) || 0, 0);
   const [data, setData] = useState({ results: [], count: 0 });
+  const [counts, setCounts] = useState({});
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState(filters.q || "");
@@ -82,6 +94,22 @@ export default function Inbox() {
   }, [query]);
   usePoll(load);
 
+  // How many tickets sit in each saved view (one tiny request per view)
+  const loadCounts = useCallback(async () => {
+    const entries = await Promise.all(
+      VIEWS.map(async (v) => {
+        const res = await apiGet(`${TICKETS_API}?${buildQuery(v.filters, { limit: 1 })}`);
+        const n = res.ok ? (res.data.count ?? (res.data.results ?? res.data).length) : undefined;
+        return [v.id, n];
+      })
+    );
+    if (alive.current) setCounts(Object.fromEntries(entries));
+  }, []);
+  useEffect(() => {
+    loadCounts();
+  }, [loadCounts]);
+  usePoll(loadCounts, 15000);
+
   const update = (patch) => {
     const next = new URLSearchParams(params);
     for (const [k, v] of Object.entries({ page: undefined, ...patch })) {
@@ -93,230 +121,244 @@ export default function Inbox() {
   // "All" for status must be remembered as an explicit choice, so it is stored as "all" and sent as nothing
   const statusValue = params.get("status") ?? "active";
   const pages = Math.max(Math.ceil(data.count / PAGE_SIZE), 1);
+  const currentView = VIEWS.find((v) => sameFilters(filters, v.filters));
+  const filtered = !currentView;
 
   return (
-    <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_21rem]">
-      <div className="min-w-0 space-y-6">
-        <section className="relative overflow-hidden rounded-3xl bg-ink p-7 text-white shadow-[0_20px_40px_-24px_rgba(15,23,42,0.6)]">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -right-16 -top-24 h-72 w-72 rounded-full bg-accent/50 blur-3xl"
-          />
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute -bottom-28 left-1/3 h-64 w-64 rounded-full bg-sky-500/25 blur-3xl"
-          />
-          <div className="relative flex flex-wrap items-end justify-between gap-5">
-            <div>
-              <p className="text-sm font-medium text-white/60">
-                {greeting()}, {firstName}
-              </p>
-              <h1 className="display mt-1 text-3xl">Tickets</h1>
-              <p className="mt-1.5 text-sm text-white/70">
-                {loading
-                  ? "Loading the queue…"
-                  : `${data.count} ${data.count === 1 ? "ticket" : "tickets"} in this view`}
-              </p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {[
-                ["Needs a reply", "inbox", { status: "open", assigned: "unassigned" }],
-                ["Assigned to me", "userCheck", { status: "active", assigned: "me" }],
-                ["Urgent", "flag", { status: "active", priority: "urgent" }],
-              ].map(([text, icon, patch]) => (
-                <button
-                  key={text}
-                  type="button"
-                  onClick={() =>
-                    update({
-                      status: "active",
-                      assigned: "",
-                      priority: "",
-                      category: "",
-                      q: "",
-                      ...patch,
-                    })
-                  }
-                  className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-3.5 py-2 text-sm font-medium text-white ring-1 ring-white/15 transition hover:bg-white/20"
-                >
-                  <Icon name={icon} className="h-4 w-4 text-white/70" />
-                  {text}
-                </button>
-              ))}
-            </div>
+    <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_20rem] xl:gap-8">
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-2">
+          <div>
+            <h1 className="text-[26px] font-extrabold leading-tight tracking-[-0.02em] text-carbon">
+              Queue
+            </h1>
+            <p className="mt-1 text-sm text-muted">
+              {greeting()}, {firstName}.{" "}
+              {loading ? (
+                "Loading the queue…"
+              ) : (
+                <>
+                  <span className="tnum font-semibold text-ink">{data.count}</span>{" "}
+                  {data.count === 1 ? "ticket" : "tickets"} in this view.
+                </>
+              )}
+            </p>
           </div>
-        </section>
+        </div>
 
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          {[
-            ["Tickets", data.count, "inbox", "text-accent-deep bg-accent/10"],
-            [
-              "Unassigned",
-              data.results.filter((t) => !t.assignedTo).length,
-              "user",
-              "text-amber-700 bg-amber-50",
-            ],
-            [
-              "Urgent",
-              data.results.filter((t) => t.priority === "urgent").length,
-              "flag",
-              "text-red-700 bg-red-50",
-            ],
-            [
-              "Customer replied",
-              data.results.filter((t) => t.lastSender === "owner").length,
-              "mail",
-              "text-emerald-700 bg-emerald-50",
-            ],
-          ].map(([text, n, icon, tone]) => (
-            <div
-              key={text}
-              className="flex items-center gap-3 rounded-2xl bg-white p-4 ring-1 ring-slate-200/80"
+        <nav
+          aria-label="Saved views"
+          className="mt-5 flex gap-1 overflow-x-auto border-b border-line-strong"
+        >
+          {VIEWS.map((v) => {
+            const on = currentView?.id === v.id;
+            const n = counts[v.id];
+            return (
+              <button
+                key={v.id}
+                type="button"
+                aria-current={on ? "true" : undefined}
+                onClick={() => {
+                  setSearch("");
+                  update({ ...EMPTY, ...v.filters });
+                }}
+                className={`relative -mb-px inline-flex shrink-0 items-center gap-2 whitespace-nowrap rounded-t-[5px] border px-3.5 py-2.5 text-sm font-semibold transition-colors ${
+                  on
+                    ? "border-line-strong border-b-sheet bg-sheet text-ink"
+                    : "border-transparent text-muted hover:text-ink"
+                }`}
+              >
+                {v.text}
+                {n !== undefined && (
+                  <span
+                    className={`tnum text-[12px] font-bold ${
+                      v.id === "urgent" && n > 0 ? "text-urgent" : on ? "text-carbon" : "text-faint"
+                    }`}
+                  >
+                    {n}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
+        <div className="rounded-b-[6px] border border-t-0 border-line-strong bg-sheet shadow-[var(--shadow-sheet)]">
+          <div className="flex flex-wrap items-center gap-2 border-b border-line px-4 py-3">
+            <form
+              role="search"
+              className="relative min-w-0 flex-1 basis-64"
+              onSubmit={(e) => {
+                e.preventDefault();
+                update({ q: search.trim() });
+              }}
             >
-              <span className={`flex h-10 w-10 items-center justify-center rounded-xl ${tone}`}>
-                <Icon name={icon} className="h-5 w-5" />
-              </span>
-              <div>
-                <p className="text-2xl font-semibold leading-none tabular-nums">
-                  {loading ? "–" : n}
-                </p>
-                <p className="mt-1 text-xs text-slate-500">{text}</p>
-              </div>
+              <Icon
+                name="search"
+                className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-faint"
+              />
+              <input
+                aria-label="Search tickets"
+                type="search"
+                placeholder="Search number, subject, store or email"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className={`${inputClass} w-full pl-9`}
+              />
+            </form>
+            <div className="grid w-full grid-cols-2 gap-2 sm:contents [&>select]:min-w-0">
+              <Select
+                name="Status"
+                value={statusValue}
+                onChange={(v) => update({ status: v })}
+                options={[
+                  ["active", "Active"],
+                  ["all", "All statuses"],
+                  ...STATUSES.map((s) => [s, label(STATUS_LABEL, s)]),
+                ]}
+              />
+              <Select
+                name="Priority"
+                value={params.get("priority") ?? ""}
+                onChange={(v) => update({ priority: v })}
+                options={[
+                  ["", "Any priority"],
+                  ...PRIORITIES.map((p) => [p, label(PRIORITY_LABEL, p)]),
+                ]}
+              />
+              <Select
+                name="Category"
+                value={params.get("category") ?? ""}
+                onChange={(v) => update({ category: v })}
+                options={[
+                  ["", "Any category"],
+                  ...CATEGORIES.map((c) => [c, label(CATEGORY_LABEL, c)]),
+                ]}
+              />
+              <Select
+                name="Assigned"
+                value={params.get("assigned") ?? ""}
+                onChange={(v) => update({ assigned: v })}
+                options={[
+                  ["", "Anyone"],
+                  ["me", "Assigned to me"],
+                  ["unassigned", "Unassigned"],
+                ]}
+              />
             </div>
-          ))}
-        </div>
+            {filtered && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearch("");
+                  update({ ...EMPTY, status: "" });
+                }}
+                className="inline-flex items-center gap-1 rounded-[5px] px-2 py-2 text-sm font-medium text-carbon hover:underline"
+              >
+                <Icon name="x" className="h-3.5 w-3.5" />
+                Clear
+              </button>
+            )}
+          </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
-          <form
-            className="relative"
-            onSubmit={(e) => {
-              e.preventDefault();
-              update({ q: search.trim() });
-            }}
+          {error && (
+            <div className="px-4 pt-4">
+              <ErrorNote>{error}</ErrorNote>
+            </div>
+          )}
+
+          <div
+            aria-hidden="true"
+            className="hidden grid-cols-[8.5rem_minmax(0,1fr)_11rem_6.5rem_10.5rem_1rem] gap-4 border-b border-line bg-wash px-5 py-2 text-[12px] font-semibold text-muted lg:grid"
           >
-            <Icon
-              name="search"
-              className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
-            />
-            <input
-              aria-label="Search"
-              placeholder="Search number, subject, store, email"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className={`${inputClass} w-80 max-w-full pl-10`}
-            />
-          </form>
-          <Select
-            name="Status"
-            value={statusValue}
-            onChange={(v) => update({ status: v })}
-            options={[
-              ["active", "Active"],
-              ["all", "All"],
-              ...STATUSES.map((s) => [s, label(STATUS_LABEL, s)]),
-            ]}
-          />
-          <Select
-            name="Priority"
-            value={params.get("priority") ?? ""}
-            onChange={(v) => update({ priority: v })}
-            options={[
-              ["", "Any priority"],
-              ...PRIORITIES.map((p) => [p, label(PRIORITY_LABEL, p)]),
-            ]}
-          />
-          <Select
-            name="Category"
-            value={params.get("category") ?? ""}
-            onChange={(v) => update({ category: v })}
-            options={[
-              ["", "Any category"],
-              ...CATEGORIES.map((c) => [c, label(CATEGORY_LABEL, c)]),
-            ]}
-          />
-          <Select
-            name="Assigned"
-            value={params.get("assigned") ?? ""}
-            onChange={(v) => update({ assigned: v })}
-            options={[
-              ["", "Anyone"],
-              ["me", "Assigned to me"],
-              ["unassigned", "Unassigned"],
-            ]}
-          />
-        </div>
+            <span>Ticket</span>
+            <span>Subject and requester</span>
+            <span>Status</span>
+            <span>Priority</span>
+            <span>How it arrived</span>
+            <span />
+          </div>
 
-        <ErrorNote>{error}</ErrorNote>
-
-        <div className="overflow-hidden rounded-2xl bg-white shadow-[0_1px_2px_rgba(17,24,39,0.04)] ring-1 ring-slate-200/80">
           {loading ? (
-            <ul aria-hidden="true" className="divide-y divide-slate-100">
-              {[0, 1, 2].map((i) => (
-                <li key={i} className="flex animate-pulse items-center gap-4 px-5 py-4">
-                  <span className="h-10 w-10 rounded-md bg-slate-100" />
+            <ul aria-label="Loading tickets">
+              {[0, 1, 2, 3].map((i) => (
+                <li key={i} className="perf flex animate-pulse items-center gap-6 px-5 py-4">
+                  <span className="h-3.5 w-20 rounded-sm bg-ink/[0.07]" />
                   <span className="flex-1 space-y-2">
-                    <span className="block h-3.5 w-1/3 rounded bg-slate-100" />
-                    <span className="block h-3 w-1/2 rounded bg-slate-100" />
+                    <span className="block h-3.5 w-2/5 rounded-sm bg-ink/[0.07]" />
+                    <span className="block h-3 w-3/5 rounded-sm bg-ink/[0.05]" />
                   </span>
                 </li>
               ))}
             </ul>
           ) : data.results.length === 0 ? (
             <div className="flex flex-col items-center px-6 py-16 text-center">
-              <span className="flex h-12 w-12 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
-                <Icon name="inbox" className="h-6 w-6" />
-              </span>
-              <p className="mt-4 text-[15px] font-semibold">No tickets match</p>
-              <p className="mt-1 max-w-xs text-sm text-slate-500">
-                Try a different search or loosen the filters to see more of the queue.
+              <Icon name="inbox" className="h-7 w-7 text-faint" />
+              <p className="mt-3 text-[15px] font-bold">
+                {currentView?.id === "reply" ? "Nobody is waiting for a reply" : "No tickets match"}
               </p>
+              <p className="mt-1 max-w-sm text-sm text-muted">
+                {currentView?.id === "reply"
+                  ? "Every open ticket has someone on it. New escalations from the assistant land here first."
+                  : "Try a different search, or clear the filters to see the whole active queue."}
+              </p>
+              {filtered && (
+                <button
+                  type="button"
+                  className={`${secondaryButton} mt-4`}
+                  onClick={() => {
+                    setSearch("");
+                    update({ ...EMPTY, status: "" });
+                  }}
+                >
+                  Show all active tickets
+                </button>
+              )}
             </div>
           ) : (
-            <ul className="divide-y divide-slate-100">
+            <ul aria-label="Tickets">
               {data.results.map((t) => (
-                <li key={t.id}>
+                <li key={t.id} className="perf last:bg-none">
                   <Link
                     to={`/tickets/${t.id}`}
-                    className="group relative flex items-center gap-4 px-5 py-4 transition hover:bg-slate-50 focus-visible:bg-slate-50 focus-visible:outline-none"
+                    className="group relative grid grid-cols-[minmax(0,1fr)_1rem] items-center gap-x-4 gap-y-2 px-5 py-3.5 transition-[background-color,box-shadow] hover:bg-wash focus-visible:z-10 focus-visible:bg-sheet focus-visible:shadow-[var(--shadow-lift)] focus-visible:outline-2 focus-visible:-outline-offset-2 lg:grid-cols-[8.5rem_minmax(0,1fr)_11rem_6.5rem_10.5rem_1rem]"
                   >
-                    {t.priority === "urgent" && (
-                      <span
-                        aria-hidden="true"
-                        className="absolute inset-y-0 left-0 w-0.5 bg-red-500"
-                      />
-                    )}
-                    <Avatar name={t.store?.name} />
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-baseline gap-2.5">
-                        <span className="shrink-0 text-[11.5px] font-medium tabular-nums tracking-tight text-slate-400">
-                          {t.ticketNumber}
-                        </span>
-                        <span className="min-w-0 truncate text-[15px] font-medium text-ink">
-                          {t.subject}
-                        </span>
-                      </div>
-                      <p className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-500">
-                        <Meta icon="store">{t.store?.name}</Meta>
-                        <Meta icon="mail">{t.user?.email || "Former user"}</Meta>
-                        <Meta icon={t.assignedTo ? "userCheck" : "user"}>
+                    <span className="flex items-baseline gap-3 lg:block">
+                      <PadNumber value={t.ticketNumber} className="text-[13px]" />
+                      <span className="tnum block text-[12px] text-faint lg:mt-0.5">
+                        {clock(t.updatedAt)}
+                      </span>
+                    </span>
+                    <span className="col-start-1 min-w-0 lg:col-start-auto">
+                      <span className="line-clamp-2 text-[15px] font-semibold leading-snug text-ink">
+                        {t.subject}
+                      </span>
+                      <span className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[13px] text-muted">
+                        <span className="font-medium text-ink/80">{t.store?.name}</span>
+                        <span className="truncate">{t.user?.email || "Former user"}</span>
+                        <span className="inline-flex items-center gap-1">
+                          <Icon
+                            name={t.assignedTo ? "userCheck" : "user"}
+                            className="h-3.5 w-3.5 text-faint"
+                          />
                           {t.assignedTo ? t.assignedTo.name : "Unassigned"}
-                        </Meta>
-                        <Meta icon="clock">{clock(t.updatedAt)}</Meta>
+                        </span>
                         {t.lastSender === "owner" && (
-                          <span className="font-medium text-accent-deep">
+                          <span className="inline-flex items-center gap-1 font-bold text-carbon">
+                            <Icon name="mail" className="h-3.5 w-3.5" />
                             Customer replied last
                           </span>
                         )}
-                      </p>
-                    </div>
-                    <div className="hidden shrink-0 items-center justify-end gap-5 md:flex">
+                      </span>
+                    </span>
+                    <span className="col-start-1 flex flex-wrap items-center gap-x-4 gap-y-1 lg:contents">
                       <StatusBadge status={t.status} />
                       <PriorityBadge priority={t.priority} />
                       <SourceBadge source={t.source} />
-                    </div>
+                    </span>
                     <Icon
                       name="chevronRight"
-                      className="h-4 w-4 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-slate-500"
+                      className="col-start-2 row-span-3 row-start-1 h-4 w-4 text-line-strong transition-[color,transform] group-hover:translate-x-0.5 group-hover:text-muted lg:col-start-auto lg:row-span-1 lg:row-start-auto"
                     />
                   </Link>
                 </li>
@@ -326,7 +368,7 @@ export default function Inbox() {
         </div>
 
         {pages > 1 && (
-          <div className="flex items-center justify-end gap-3 text-sm text-slate-600">
+          <div className="mt-4 flex items-center justify-end gap-3 text-sm text-muted">
             <button
               className={secondaryButton}
               disabled={page === 0}
@@ -335,7 +377,7 @@ export default function Inbox() {
               <Icon name="chevronLeft" className="h-4 w-4" />
               Previous
             </button>
-            <span>
+            <span className="tnum">
               Page {page + 1} of {pages}
             </span>
             <button
@@ -349,52 +391,49 @@ export default function Inbox() {
           </div>
         )}
       </div>
-      <aside className="space-y-5 xl:sticky xl:top-24">
-        <section className="rounded-2xl bg-white p-5 ring-1 ring-slate-200/80">
-          <div className="flex items-center justify-between">
-            <SectionTitle icon="book">Common problems</SectionTitle>
-            <Link to="/problems" className="text-xs font-medium text-accent-deep hover:underline">
-              View all
+
+      <aside className="space-y-5 xl:sticky xl:top-20">
+        <section className="rounded-[6px] border border-line-strong bg-sheet shadow-[var(--shadow-sheet)]">
+          <div className="flex items-center justify-between border-b border-line px-4 py-3">
+            <h2 className="text-[13px] font-bold">Common problems</h2>
+            <Link
+              to="/problems"
+              className="text-[13px] font-semibold text-carbon underline-offset-2 hover:underline"
+            >
+              All {PLAYBOOK.length}
             </Link>
           </div>
-          <ul className="mt-3 divide-y divide-slate-100">
+          <ul>
             {PLAYBOOK.slice(0, 7).map((p) => (
-              <li key={p.id}>
+              <li key={p.id} className="perf last:bg-none">
                 <Link
                   to={`/problems#${p.id}`}
-                  className="flex items-start justify-between gap-2 py-2.5 text-sm text-slate-700 transition hover:text-accent-deep"
+                  className="flex items-start justify-between gap-3 px-4 py-2.5 text-[13.5px] leading-snug text-ink/85 transition-colors hover:bg-wash hover:text-ink"
                 >
                   <span>{p.problem}</span>
-                  <Icon name="chevronRight" className="mt-0.5 h-4 w-4 shrink-0 text-slate-300" />
+                  <Icon name="chevronRight" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-faint" />
                 </Link>
               </li>
             ))}
           </ul>
         </section>
-        <section className="rounded-2xl bg-accent/10 p-5 ring-1 ring-accent/25">
-          <h2 className="flex items-center gap-2 text-sm font-semibold text-accent-deep">
-            <Icon name="sparkles" className="h-4 w-4" />
-            Handling tips
+
+        <section
+          aria-label="Before you reply"
+          className="ruled rounded-[6px] border border-office-edge bg-office px-4 pb-4 pt-3"
+        >
+          <h2 className="flex items-center gap-2 text-[13px] font-bold">
+            <Icon name="lock" className="h-3.5 w-3.5" />
+            Before you reply
           </h2>
-          <ul className="mt-2.5 list-disc space-y-1.5 pl-4 text-[13px] leading-relaxed text-slate-700">
-            <li>
-              Read the assistant's summary before replying so the customer never repeats themselves.
-            </li>
-            <li>Click Join chat to take a ticket, then reply or leave an internal note.</li>
+          <ol className="mt-2 list-decimal space-y-1.5 pl-4 text-[13px] leading-[24px] text-ink/85 marker:font-semibold">
+            <li>Read the assistant's copy first, so the merchant never repeats themselves.</li>
+            <li>Join the chat to take a ticket, then reply or leave an office note.</li>
             <li>Raise priority to Urgent when checkout or orders are down.</li>
-          </ul>
+          </ol>
         </section>
       </aside>
     </div>
-  );
-}
-
-function Meta({ icon, children }) {
-  return (
-    <span className="inline-flex items-center gap-1.5">
-      <Icon name={icon} className="h-3.5 w-3.5 text-slate-400" />
-      {children}
-    </span>
   );
 }
 

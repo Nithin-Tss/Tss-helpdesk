@@ -16,12 +16,26 @@ export function errorMessage(data, fallback) {
   return fallback;
 }
 
-// One refresh at a time; a refresh token works once, so concurrent 401s must share the same attempt.
+// A refresh token works once, and the server ends the whole sign-in if an already-used one comes back.
+// All tabs share it (localStorage), so only one refresh may run at a time across every tab: a lock
+// shared by all tabs of this site, plus one shared attempt per tab for concurrent 401s.
+const REFRESH_LOCK = "helpdesk-auth-refresh";
+
+function withTabLock(task) {
+  if (typeof navigator !== "undefined" && navigator.locks?.request) {
+    return navigator.locks.request(REFRESH_LOCK, task);
+  }
+  return task(); // no Web Locks (very old browser or non-secure origin): this tab only
+}
+
 let refreshing = null;
-function refreshSession() {
-  refreshing ??= (async () => {
+// `expiredToken` is the access token the server rejected.
+function refreshSession(expiredToken) {
+  refreshing ??= withTabLock(async () => {
     const session = getSession();
     if (!session?.refresh) return false;
+    // Another tab refreshed while this one waited (or before its request came back): use its tokens.
+    if (session.token && session.token !== expiredToken) return true;
     try {
       const res = await fetch(`${API_URL}/api/v1/auth/refresh/`, {
         method: "POST",
@@ -38,18 +52,21 @@ function refreshSession() {
       return true;
     } catch {
       return false;
-    } finally {
-      refreshing = null;
     }
-  })();
+  })
+    .catch(() => false)
+    .finally(() => {
+      refreshing = null;
+    });
   return refreshing;
 }
 
 async function send(path, { method = "GET", body, form } = {}) {
+  let usedToken;
   const run = () => {
     const headers = {};
-    const token = getSession()?.token;
-    if (token) headers.Authorization = `Bearer ${token}`;
+    usedToken = getSession()?.token;
+    if (usedToken) headers.Authorization = `Bearer ${usedToken}`;
     if (body !== undefined) headers["Content-Type"] = "application/json";
     return fetch(`${API_URL}${path}`, {
       method,
@@ -58,7 +75,8 @@ async function send(path, { method = "GET", body, form } = {}) {
     });
   };
   let res = await run();
-  if (res.status === 401 && getSession()?.refresh && (await refreshSession())) res = await run();
+  if (res.status === 401 && getSession()?.refresh && (await refreshSession(usedToken)))
+    res = await run();
   return res;
 }
 

@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "design-system-radius",
+        "value": "10px",
+        "createdAt": "2026-11-27T10:32:36.334Z",
+        "reason": "Claude: 10px is the scrollbar thumb pill in index.css, not a component corner"
+      }
+    ]
+  }
+}

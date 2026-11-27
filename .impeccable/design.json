@@ -1,0 +1,567 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-27T10:32:06Z",
+  "title": "Design System: TSS Helpdesk",
+  "extensions": {
+    "colorMeta": {
+      "carbon": {
+        "role": "primary",
+        "displayName": "Carbon Ink",
+        "canonical": "#1d2b6b",
+        "tonalRamp": [
+          "#0c112b",
+          "#111a40",
+          "#172256",
+          "#1d2b6b",
+          "#616b97",
+          "#99a0bc",
+          "#c6cada",
+          "#e8eaf0"
+        ]
+      },
+      "carbon-deep": {
+        "role": "primary",
+        "displayName": "Pressed Carbon",
+        "canonical": "#141f52",
+        "tonalRamp": [
+          "#080c21",
+          "#0c1331",
+          "#101942",
+          "#141f52",
+          "#5a6286",
+          "#959ab1",
+          "#c4c7d4",
+          "#e8e9ee"
+        ]
+      },
+      "sheet": {
+        "role": "secondary",
+        "displayName": "Customer Copy White",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "#666666",
+          "#999999",
+          "#cccccc",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff",
+          "#ffffff"
+        ]
+      },
+      "office": {
+        "role": "secondary",
+        "displayName": "Office Yellow",
+        "canonical": "#fff4b8",
+        "tonalRamp": [
+          "#66624a",
+          "#99926e",
+          "#ccc393",
+          "#fff4b8",
+          "#fff7cd",
+          "#fffadf",
+          "#fffced",
+          "#fffef8"
+        ]
+      },
+      "office-edge": {
+        "role": "secondary",
+        "displayName": "Office Edge",
+        "canonical": "#e6d68a",
+        "tonalRamp": [
+          "#5c5637",
+          "#8a8053",
+          "#b8ab6e",
+          "#e6d68a",
+          "#eee2ad",
+          "#f4edca",
+          "#f9f5e2",
+          "#fcfbf3"
+        ]
+      },
+      "assistant": {
+        "role": "tertiary",
+        "displayName": "Assistant Pink",
+        "canonical": "#f9d7dd",
+        "tonalRamp": [
+          "#645658",
+          "#958185",
+          "#c7acb1",
+          "#f9d7dd",
+          "#fbe3e7",
+          "#fcedf0",
+          "#fef5f6",
+          "#fefbfc"
+        ]
+      },
+      "assistant-edge": {
+        "role": "tertiary",
+        "displayName": "Assistant Edge",
+        "canonical": "#e8b4be",
+        "tonalRamp": [
+          "#5d484c",
+          "#8b6c72",
+          "#ba9098",
+          "#e8b4be",
+          "#efcad2",
+          "#f5dde2",
+          "#f9ecef",
+          "#fdf8f8"
+        ]
+      },
+      "desk": {
+        "role": "neutral",
+        "displayName": "Desk",
+        "canonical": "#f3f1ec",
+        "tonalRamp": [
+          "#61605e",
+          "#92918e",
+          "#c2c1bd",
+          "#f3f1ec",
+          "#f7f5f2",
+          "#faf9f6",
+          "#fcfcfa",
+          "#fefefd"
+        ]
+      },
+      "wash": {
+        "role": "neutral",
+        "displayName": "Wash",
+        "canonical": "#f7f5f0",
+        "tonalRamp": [
+          "#636260",
+          "#949390",
+          "#c6c4c0",
+          "#f7f5f0",
+          "#f9f8f4",
+          "#fbfaf8",
+          "#fdfcfb",
+          "#fefefe"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#20201e",
+        "tonalRamp": [
+          "#0d0d0c",
+          "#131312",
+          "#1a1a18",
+          "#20201e",
+          "#636362",
+          "#9b9b9a",
+          "#c7c7c7",
+          "#e9e9e8"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Line",
+        "canonical": "#dcd8cf",
+        "tonalRamp": [
+          "#585653",
+          "#84827c",
+          "#b0ada6",
+          "#dcd8cf",
+          "#e6e4dd",
+          "#efede9",
+          "#f6f5f3",
+          "#fcfbfa"
+        ]
+      },
+      "line-strong": {
+        "role": "neutral",
+        "displayName": "Strong Line",
+        "canonical": "#c4bfb3",
+        "tonalRamp": [
+          "#4e4c48",
+          "#76736b",
+          "#9d998f",
+          "#c4bfb3",
+          "#d6d2ca",
+          "#e4e2dd",
+          "#f0efec",
+          "#f9f9f7"
+        ]
+      },
+      "muted": {
+        "role": "neutral",
+        "displayName": "Muted",
+        "canonical": "#66625a",
+        "tonalRamp": [
+          "#292724",
+          "#3d3b36",
+          "#524e48",
+          "#66625a",
+          "#94918c",
+          "#bab8b5",
+          "#d9d8d6",
+          "#f0efee"
+        ]
+      },
+      "faint": {
+        "role": "neutral",
+        "displayName": "Faint",
+        "canonical": "#736f66",
+        "tonalRamp": [
+          "#2e2c29",
+          "#45433d",
+          "#5c5952",
+          "#736f66",
+          "#9d9a94",
+          "#c0beba",
+          "#dcdbd9",
+          "#f1f1f0"
+        ]
+      },
+      "state-open": {
+        "role": "state",
+        "displayName": "Open",
+        "canonical": "#1c6b3c",
+        "tonalRamp": [
+          "#0b2b18",
+          "#114024",
+          "#165630",
+          "#1c6b3c",
+          "#609776",
+          "#99bca7",
+          "#c6dace",
+          "#e8f0ec"
+        ]
+      },
+      "state-progress": {
+        "role": "state",
+        "displayName": "In Progress",
+        "canonical": "#1d2b6b",
+        "tonalRamp": [
+          "#0c112b",
+          "#111a40",
+          "#172256",
+          "#1d2b6b",
+          "#616b97",
+          "#99a0bc",
+          "#c6cada",
+          "#e8eaf0"
+        ]
+      },
+      "state-waiting": {
+        "role": "state",
+        "displayName": "Waiting on Customer",
+        "canonical": "#8a5200",
+        "tonalRamp": [
+          "#372100",
+          "#533100",
+          "#6e4200",
+          "#8a5200",
+          "#ad864c",
+          "#cab18c",
+          "#e2d4bf",
+          "#f3eee6"
+        ]
+      },
+      "state-done": {
+        "role": "state",
+        "displayName": "Resolved",
+        "canonical": "#66625a",
+        "tonalRamp": [
+          "#292724",
+          "#3d3b36",
+          "#524e48",
+          "#66625a",
+          "#94918c",
+          "#bab8b5",
+          "#d9d8d6",
+          "#f0efee"
+        ]
+      },
+      "state-closed": {
+        "role": "state",
+        "displayName": "Closed",
+        "canonical": "#736f66",
+        "tonalRamp": [
+          "#2e2c29",
+          "#45433d",
+          "#5c5952",
+          "#736f66",
+          "#9d9a94",
+          "#c0beba",
+          "#dcdbd9",
+          "#f1f1f0"
+        ]
+      },
+      "urgent": {
+        "role": "state",
+        "displayName": "Urgent",
+        "canonical": "#b3261e",
+        "tonalRamp": [
+          "#480f0c",
+          "#6b1712",
+          "#8f1e18",
+          "#b3261e",
+          "#ca6762",
+          "#dd9d9a",
+          "#ecc9c7",
+          "#f7e9e8"
+        ]
+      },
+      "high": {
+        "role": "state",
+        "displayName": "High",
+        "canonical": "#a64b0a",
+        "tonalRamp": [
+          "#421e04",
+          "#642d06",
+          "#853c08",
+          "#a64b0a",
+          "#c18154",
+          "#d7ae91",
+          "#e9d2c2",
+          "#f6ede6"
+        ]
+      },
+      "error-wash": {
+        "role": "state",
+        "displayName": "Error Wash",
+        "canonical": "#fbeceb",
+        "tonalRamp": [
+          "#645e5e",
+          "#978e8d",
+          "#c9bdbc",
+          "#fbeceb",
+          "#fcf2f1",
+          "#fdf6f6",
+          "#fefafa",
+          "#fffdfd"
+        ]
+      },
+      "error-ink": {
+        "role": "state",
+        "displayName": "Error Ink",
+        "canonical": "#7a1a14",
+        "tonalRamp": [
+          "#310a08",
+          "#49100c",
+          "#621510",
+          "#7a1a14",
+          "#a25f5a",
+          "#c39895",
+          "#dec6c4",
+          "#f2e8e8"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Login aside headline on the ink panel only."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Page titles in carbon; ticket subject at 24px."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Stub subjects in the queue."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Fields, buttons and thread copies."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Section titles, state and priority words, meta."
+      },
+      "number": {
+        "displayName": "Pad Number",
+        "purpose": "No. 000014 ticket numbers, counts and clocks in tabular figures."
+      }
+    },
+    "shadows": [
+      {
+        "name": "sheet",
+        "value": "0 1px 0 rgb(32 32 30 / 0.04), 0 1px 3px rgb(32 32 30 / 0.05)",
+        "purpose": "Every resting sheet and staff reply."
+      },
+      {
+        "name": "lift",
+        "value": "0 6px 16px -6px rgb(32 32 30 / 0.18), 0 1px 2px rgb(32 32 30 / 0.06)",
+        "purpose": "Login card and keyboard-focused stub."
+      },
+      {
+        "name": "pressed-ink",
+        "value": "inset 0 1px 0 rgb(255 255 255 / 0.12), 0 1px 2px rgb(20 31 82 / 0.3)",
+        "purpose": "Primary button only."
+      }
+    ],
+    "motion": [
+      {
+        "name": "state-transition",
+        "value": "150ms cubic-bezier(0.4, 0, 0.2, 1)",
+        "purpose": "Colour, border and shadow changes on controls and stubs (Tailwind default)."
+      },
+      {
+        "name": "press",
+        "value": "translateY(1px)",
+        "purpose": "Primary button active state."
+      },
+      {
+        "name": "desk-ruling",
+        "value": "28px gap, rgba(29,43,107,0.07); pointer pressure sigma 95px, up to +0.3 alpha, eased 0.18 per frame",
+        "purpose": "Ruled desk canvas behind sheets; still under prefers-reduced-motion."
+      },
+      {
+        "name": "carbon-trace",
+        "value": "1400ms linear fade",
+        "purpose": "Pointer trace on the desk canvas."
+      },
+      {
+        "name": "press-ring",
+        "value": "700ms ease-out cubic, radius 6 to 36px",
+        "purpose": "Click ring on the desk canvas."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Carbon ink fill; the one filled action on a screen.",
+      "html": "<button class=\"ds-btn-primary\">Send reply</button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;gap:8px;background:var(--color-carbon, #1d2b6b);color:#fff;font:600 14px/20px 'Public Sans',sans-serif;padding:8px 16px;border:0;border-radius:5px;box-shadow:inset 0 1px 0 rgb(255 255 255/.12),0 1px 2px rgb(20 31 82/.3);transition:background-color .15s,transform .15s;cursor:pointer}.ds-btn-primary:hover{background:var(--color-carbon-deep, #141f52)}.ds-btn-primary:active{transform:translateY(1px)}.ds-btn-primary:focus-visible{outline:2px solid var(--color-carbon, #1d2b6b);outline-offset:2px}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "White sheet button with strong-line border.",
+      "html": "<button class=\"ds-btn-secondary\">Assign to me</button>",
+      "css": ".ds-btn-secondary{display:inline-flex;align-items:center;gap:8px;background:#fff;color:var(--color-ink, #20201e);font:500 14px/20px 'Public Sans',sans-serif;padding:6px 12px;border:1px solid var(--color-line-strong, #c4bfb3);border-radius:5px;transition:background-color .15s,border-color .15s;cursor:pointer}.ds-btn-secondary:hover{background:var(--color-wash, #f7f5f0);border-color:rgb(102 98 90/.7)}.ds-btn-secondary:focus-visible{outline:2px solid var(--color-carbon, #1d2b6b);outline-offset:2px}"
+    },
+    {
+      "name": "Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "White field; carbon border and ring on focus.",
+      "html": "<input class=\"ds-input\" placeholder=\"Search subject, store or email\">",
+      "css": ".ds-input{background:#fff;color:var(--color-ink, #20201e);font:400 14px/20px 'Public Sans',sans-serif;padding:8px 12px;border:1px solid var(--color-line-strong, #c4bfb3);border-radius:5px;transition:border-color .15s,box-shadow .15s;min-width:240px}.ds-input::placeholder{color:var(--color-faint, #736f66)}.ds-input:hover{border-color:rgb(102 98 90/.6)}.ds-input:focus{outline:none;border-color:var(--color-carbon, #1d2b6b);box-shadow:0 0 0 2px rgb(29 43 107/.15)}"
+    },
+    {
+      "name": "Ink Top Bar",
+      "kind": "nav",
+      "refersTo": "top-bar",
+      "description": "Near-black bar; active link underlined in office yellow; waiting count as a yellow chip.",
+      "html": "<nav class=\"ds-bar\"><b>TSS <span>Helpdesk</span></b><a class=\"on\" href=\"#\">Queue</a><a href=\"#\">Common problems</a><em><i>4</i> waiting for a person</em></nav>",
+      "css": ".ds-bar{display:flex;align-items:center;gap:28px;height:56px;padding:0 24px;background:var(--color-ink, #20201e);color:#fff;font:600 14px 'Public Sans',sans-serif}.ds-bar b{font-size:15px;font-weight:700}.ds-bar b span{font-weight:500;color:rgb(255 255 255/.65)}.ds-bar a{position:relative;display:inline-flex;align-items:center;height:56px;color:rgb(255 255 255/.6);text-decoration:none;transition:color .15s}.ds-bar a:hover,.ds-bar a.on{color:#fff}.ds-bar a.on::after{content:'';position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--color-office, #fff4b8)}.ds-bar a:focus-visible{outline:2px solid var(--color-carbon, #1d2b6b);outline-offset:2px}.ds-bar em{font-style:normal;font-size:13px;color:var(--color-office, #fff4b8);display:inline-flex;gap:8px;align-items:center}.ds-bar i{font-style:normal;font-variant-numeric:tabular-nums;background:var(--color-office, #fff4b8);color:var(--color-ink, #20201e);font-weight:700;font-size:12px;border-radius:4px;padding:0 5px;min-width:20px;text-align:center}"
+    },
+    {
+      "name": "State and Priority",
+      "kind": "chip",
+      "refersTo": "",
+      "description": "Flat icon plus word in the reserved state hue; never a filled pill.",
+      "html": "<span class=\"ds-state\" style=\"color:#1c6b3c\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"9\"/></svg>Open</span> <span class=\"ds-state\" style=\"color:#b3261e\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"M4 22V4h13l-2 4 2 4H4\"/></svg>Urgent</span>",
+      "css": ".ds-state{display:inline-flex;align-items:center;gap:6px;font:600 13px 'Public Sans',sans-serif;white-space:nowrap;margin-right:16px}"
+    },
+    {
+      "name": "Queue Stub",
+      "kind": "card",
+      "refersTo": "sheet",
+      "description": "Numbered stub on the pad, carbon pad number, perforated below.",
+      "html": "<a class=\"ds-stub\" href=\"#\"><span class=\"n\"><small>No.</small> 000014<br><time>09:42</time></span><span><b>Checkout fails after switching to live keys</b><br><span class=\"m\">Kumar Stores · Unassigned</span></span></a><a class=\"ds-stub\" href=\"#\"><span class=\"n\"><small>No.</small> 000013<br><time>09:10</time></span><span><b>Invoice shows wrong GST rate</b><br><span class=\"m\">Asha Textiles · Priya</span></span></a>",
+      "css": ".ds-stub{display:grid;grid-template-columns:8.5rem 1fr;gap:16px;padding:14px 20px;background:#fff;color:var(--color-ink, #20201e);text-decoration:none;font-family:'Public Sans',sans-serif;background-image:linear-gradient(90deg,var(--color-line-strong, #c4bfb3) 50%,transparent 0);background-size:8px 1px;background-repeat:repeat-x;background-position:0 100%;transition:background-color .15s,box-shadow .15s}.ds-stub:hover{background-color:var(--color-wash, #f7f5f0)}.ds-stub:focus-visible{position:relative;box-shadow:0 6px 16px -6px rgb(32 32 30/.18),0 1px 2px rgb(32 32 30/.06);outline:2px solid var(--color-carbon, #1d2b6b);outline-offset:-2px}.ds-stub .n{font-variant-numeric:tabular-nums;font-weight:700;font-size:13px;color:var(--color-carbon, #1d2b6b)}.ds-stub small{font-size:13px;font-weight:500;opacity:.75}.ds-stub time{font-weight:400;font-size:12px;color:var(--color-faint, #736f66)}.ds-stub b{font-size:15px;font-weight:600}.ds-stub .m{font-size:13px;color:var(--color-muted, #66625a)}"
+    },
+    {
+      "name": "Copies",
+      "kind": "custom",
+      "refersTo": "office-copy",
+      "description": "Thread copies: merchant on wash, staff reply on white in carbon, office note on ruled yellow, assistant on pink.",
+      "html": "<div class=\"ds-copies\"><p class=\"m\">Payment fails since this morning.</p><p class=\"s\">Could you paste the webhook secret again?</p><p class=\"o\"><b>Office note, not sent</b><br>Webhook secret is blank in settings.</p><p class=\"a\">Merchant added live Razorpay keys this morning.</p></div>",
+      "css": ".ds-copies{display:grid;gap:12px;font:400 14px/1.55 'Public Sans',sans-serif;max-width:420px}.ds-copies p{margin:0;padding:12px 16px;border-radius:6px;border:1px solid}.ds-copies .m{background:var(--color-wash, #f7f5f0);border-color:var(--color-line, #dcd8cf);color:var(--color-ink, #20201e)}.ds-copies .s{background:#fff;border-color:rgb(29 43 107/.25);color:var(--color-carbon, #1d2b6b);box-shadow:0 1px 0 rgb(32 32 30/.04),0 1px 3px rgb(32 32 30/.05);justify-self:end}.ds-copies .o{background-color:var(--color-office, #fff4b8);border-color:var(--color-office-edge, #e6d68a);color:var(--color-ink, #20201e);line-height:24px;background-image:repeating-linear-gradient(to bottom,transparent 0 23px,rgb(32 32 30/.06) 23px 24px)}.ds-copies .o b{font-size:12px}.ds-copies .a{background:var(--color-assistant, #f9d7dd);border-color:var(--color-assistant-edge, #e8b4be);color:var(--color-ink, #20201e)}"
+    },
+    {
+      "name": "Error Note",
+      "kind": "custom",
+      "refersTo": "error-note",
+      "description": "Inline alert with urgent icon on error wash.",
+      "html": "<p class=\"ds-error\" role=\"alert\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"#b3261e\" stroke-width=\"2\" stroke-linecap=\"round\"><path d=\"M12 9v4M12 17h.01\"/><circle cx=\"12\" cy=\"12\" r=\"9\"/></svg>Could not load the queue. Try again.</p>",
+      "css": ".ds-error{display:flex;gap:10px;align-items:flex-start;margin:0;padding:12px 16px;border-radius:5px;border:1px solid rgb(179 38 30/.3);background:var(--color-error-wash, #fbeceb);color:var(--color-error-ink, #7a1a14);font:400 14px/20px 'Public Sans',sans-serif}.ds-error svg{margin-top:2px;flex:none}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Duplicate Book",
+    "overview": "The helpdesk is a carbon duplicate book on a warm desk. Every message is a copy on a specific paper, and the paper tells the agent who it is for before a word is read: white is the customer copy that goes to the merchant, yellow is the office copy that never leaves the pad, pink is the assistant's copy of what the AI gathered. Carbon blue is the ink everything is written in: the ticket numbers, the headings, the one filled action and the focus ring.\n\nThe density is that of a working pad, not a dashboard. Sheets are opaque white with hairline borders and a barely-there sheet shadow; queue rows are numbered stubs separated by dashed perforations; a near-black ink bar holds the navigation. Behind the sheets a ruled desk, drawn on a canvas, answers the pointer like carbon paper answers a pen. It shows only in the margins and never under text people read.\n\nThe world refuses the SaaS dashboard banner, the stat-card row and frosted glass. Hue outside the three papers belongs to ticket state, priority and errors, and those always arrive as an icon plus a word.",
+    "keyCharacteristics": [
+      "Three papers with fixed meanings: white customer copy, yellow office copy, pink assistant copy.",
+      "Carbon blue (#1d2b6b) as the single writing ink for numbers, headings, primary action and focus.",
+      "Warm greys mixed from ink; nothing drifts cool.",
+      "Dashed perforations between stubs; ticket numbers lead as \"No. 000014\" in carbon with tabular figures.",
+      "Public Sans throughout, extra-bold headlines with tight tracking.",
+      "Interactive ruled-desk canvas behind opaque sheets, still under reduced motion."
+    ],
+    "rules": [
+      {
+        "name": "The Paper Means Something Rule",
+        "body": "White is the customer copy, yellow the office copy, pink the assistant's copy. Never use a paper colour as decoration; a yellow surface must be internal and a pink surface must be the assistant's.",
+        "section": "colors"
+      },
+      {
+        "name": "The Reserved Hue Rule",
+        "body": "Hue outside the three papers and carbon is reserved for ticket state, priority and errors, and it is always shown as icon plus word, never as a filled pill or a colour alone.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Ink Rule",
+        "body": "Carbon is the only writing ink. Numbers, headings, the primary action and focus are carbon; nothing else claims it.",
+        "section": "colors"
+      },
+      {
+        "name": "The Opt-In Figures Rule",
+        "body": "Tabular figures are off globally and switched on with the `tnum` utility wherever numbers stack or tick: pad numbers, counts, clocks, codes.",
+        "section": "typography"
+      },
+      {
+        "name": "The Opaque Sheet Rule",
+        "body": "Sheets are opaque. The ruled desk shows only in the margins; it is never seen through a sheet and never runs under text people read.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Perforation Rule",
+        "body": "Stubs on the pad are separated by dashed perforations, never by solid rules or gaps; the last stub has none.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "**Do** put internal content on office yellow with its ruling and a lock plus \"not sent\" wording, and assistant content on assistant pink.",
+      "**Do** lead every ticket reference with the carbon pad number (\"No.\" then the digits) in tabular figures.",
+      "**Do** show state and priority as a 16px icon plus the word in its hue.",
+      "**Do** separate stubs with the dashed perforation and keep sheets opaque over the ruled desk.",
+      "**Do** keep one carbon-filled primary action per screen and use the 2px carbon focus outline everywhere.",
+      "**Do** keep the background still under reduced motion and out from under reading text."
+    ],
+    "donts": [
+      "**Don't** use yellow or pink for anything that is not the office copy or the assistant's copy.",
+      "**Don't** introduce hue outside the papers, carbon and the state, priority and error set, and don't show state as colour alone or as a filled pill.",
+      "**Don't** add a dashboard banner, a stat-card row or frosted glass.",
+      "**Don't** let greys drift cool; mix them from ink.",
+      "**Don't** round sheets beyond 6px or controls beyond 5px."
+    ]
+  }
+}

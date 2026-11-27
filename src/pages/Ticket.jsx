@@ -19,14 +19,13 @@ import {
   useTicketLive,
 } from "../lib/tickets.js";
 import {
-  Avatar,
   ErrorNote,
+  PadNumber,
   PriorityBadge,
-  SectionTitle,
   SourceBadge,
   StatusBadge,
   inputClass,
-  secondaryButton,
+  primaryButton,
 } from "../components/ui.jsx";
 import Icon from "../components/Icon.jsx";
 import { ReplyBox, Thread } from "../components/Conversation.jsx";
@@ -101,10 +100,17 @@ function TicketView({ ticketId }) {
   };
 
   if (error && !ticket) return <ErrorNote>{error}</ErrorNote>;
-  if (!ticket) return <p className="text-sm text-slate-500">Loading…</p>;
+  if (!ticket)
+    return (
+      <div aria-label="Loading ticket" className="max-w-3xl animate-pulse space-y-3">
+        <span className="block h-4 w-24 rounded-sm bg-ink/[0.07]" />
+        <span className="block h-7 w-2/3 rounded-sm bg-ink/[0.08]" />
+        <span className="block h-28 rounded-[6px] bg-ink/[0.05]" />
+      </div>
+    );
 
   const joined = Boolean(ticket.assignedTo);
-  const customerName = ticket.user?.name || ticket.user?.email || "Customer";
+  const customerName = ticket.user?.name || ticket.user?.email || "Merchant";
   const details = [
     ["Store", ticket.store?.name],
     ["Store ID", ticket.store?.id],
@@ -121,44 +127,33 @@ function TicketView({ ticketId }) {
   };
 
   return (
-    <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_22rem]">
-      <div className="min-w-0 space-y-5">
+    <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_22rem] xl:gap-8">
+      <div className="min-w-0 space-y-4">
         <Link
           to="/"
-          className="inline-flex items-center gap-1.5 rounded-lg text-sm font-medium text-slate-500 transition hover:text-ink"
+          className="inline-flex items-center gap-1.5 rounded-[5px] text-sm font-semibold text-muted transition-colors hover:text-ink"
         >
           <Icon name="arrowLeft" className="h-4 w-4" />
-          All tickets
+          Queue
         </Link>
 
-        <section className="rounded-2xl bg-white p-6 shadow-[0_1px_2px_rgba(17,24,39,0.04),0_8px_24px_-12px_rgba(17,24,39,0.08)] ring-1 ring-slate-200/80">
-          <div className="flex items-start gap-4">
-            <Avatar name={ticket.store?.name} size="h-12 w-12" tone="bg-slate-100 text-slate-600" />
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-medium tabular-nums text-slate-400">
-                {ticket.ticketNumber}
-              </p>
-              <h1 className="display mt-0.5 break-words text-3xl leading-tight text-ink">
-                {ticket.subject}
-              </h1>
-              <p className="mt-1.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-slate-500">
-                <span className="inline-flex items-center gap-1.5">
-                  <Icon name="store" className="h-3.5 w-3.5 text-slate-400" />
-                  {ticket.store?.name}
-                </span>
-                <span className="inline-flex items-center gap-1.5">
-                  <Icon name="clock" className="h-3.5 w-3.5 text-slate-400" />
-                  Opened {clock(ticket.createdAt)}
-                </span>
-              </p>
-            </div>
+        <section className="rounded-[6px] border border-line-strong bg-sheet shadow-[var(--shadow-sheet)]">
+          <div className="px-5 pb-4 pt-5 sm:px-6">
+            <PadNumber value={ticket.ticketNumber} className="text-sm" />
+            <h1 className="mt-1 break-words text-[24px] font-extrabold leading-tight tracking-[-0.02em] text-carbon">
+              {ticket.subject}
+            </h1>
+            <p className="mt-2 flex flex-wrap items-center gap-x-5 gap-y-1.5">
+              <StatusBadge status={ticket.status} />
+              <PriorityBadge priority={ticket.priority} />
+              <SourceBadge source={ticket.source} />
+              <span className="tnum inline-flex items-center gap-1.5 text-[13px] text-muted">
+                <Icon name="clock" className="h-4 w-4" />
+                Opened {clock(ticket.createdAt)}
+              </span>
+            </p>
           </div>
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <StatusBadge status={ticket.status} />
-            <PriorityBadge priority={ticket.priority} />
-            <SourceBadge source={ticket.source} />
-          </div>
-          <div className="mt-6 grid gap-4 border-t border-slate-100 pt-5 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-3 border-t border-line bg-wash px-5 py-4 sm:grid-cols-2 sm:px-6 lg:grid-cols-4">
             {joined ? (
               <Field name="Assigned to">
                 <select
@@ -177,24 +172,22 @@ function TicketView({ ticketId }) {
                 </select>
               </Field>
             ) : (
-              <div className="text-xs font-medium text-slate-500">
+              <div className="text-[12px] font-semibold text-muted">
                 Assigned to
-                <div className="mt-1">
-                  <button
-                    type="button"
-                    disabled={busy || !me}
-                    onClick={() =>
-                      change({
-                        assignedTo: me,
-                        status: ticket.status === "open" ? "in_progress" : undefined,
-                      })
-                    }
-                    className={`${secondaryButton} w-full justify-center`}
-                  >
-                    <Icon name="userCheck" className="h-4 w-4 text-slate-500" />
-                    Join chat
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  disabled={busy || !me}
+                  onClick={() =>
+                    change({
+                      assignedTo: me,
+                      status: ticket.status === "open" ? "in_progress" : undefined,
+                    })
+                  }
+                  className={`${primaryButton} mt-1 w-full`}
+                >
+                  <Icon name="userCheck" className="h-4 w-4" />
+                  Join chat
+                </button>
               </div>
             )}
             <Field name="Status">
@@ -243,105 +236,97 @@ function TicketView({ ticketId }) {
               </select>
             </Field>
           </div>
-          <div className="mt-3">
-            <ErrorNote>{error}</ErrorNote>
-          </div>
+          {error && (
+            <div className="border-t border-line px-5 py-3 sm:px-6">
+              <ErrorNote>{error}</ErrorNote>
+            </div>
+          )}
         </section>
 
         {ticket.summary && (
           <section
-            aria-label="AI summary"
-            className="rounded-2xl bg-accent/10 p-5 ring-1 ring-accent/30"
+            aria-label="What the assistant gathered"
+            className="rounded-[6px] border border-assistant-edge bg-assistant px-5 py-4 sm:px-6"
           >
-            <h2 className="flex items-center gap-2 text-sm font-semibold text-accent-deep">
+            <h2 className="flex items-center gap-2 text-[13px] font-bold text-ink">
               <Icon name="sparkles" className="h-4 w-4" />
-              What the assistant gathered
+              Assistant's copy: what it gathered
             </h2>
-            <p className="mt-2 whitespace-pre-wrap break-words text-[15px] leading-relaxed text-slate-800">
+            <p className="mt-1.5 max-w-[72ch] whitespace-pre-wrap break-words text-[15px] leading-[1.6] text-ink">
               {ticket.summary}
             </p>
           </section>
         )}
 
-        <details className="group rounded-2xl bg-white ring-1 ring-slate-200/80">
-          <summary className="flex cursor-pointer list-none items-center justify-between px-5 py-3.5 text-sm font-medium [&::-webkit-details-marker]:hidden">
-            <span className="flex items-center gap-2">
-              <Icon name="info" className="h-4 w-4 text-slate-400" />
-              Store and requester
-            </span>
-            <Icon
-              name="chevronDown"
-              className="h-4 w-4 text-slate-400 transition group-open:rotate-180"
-            />
-          </summary>
-          <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-2 border-t border-slate-100 px-5 py-4 text-sm">
-            {details.map(([k, v]) => (
-              <Fragment key={k}>
-                <dt className="text-slate-500">{k}</dt>
-                <dd className="break-words">{v}</dd>
-              </Fragment>
-            ))}
-          </dl>
-        </details>
-
-        <section className="rounded-2xl bg-white p-6 ring-1 ring-slate-200/80">
-          <div className="mb-5">
-            <SectionTitle icon="headset">Conversation</SectionTitle>
-          </div>
-          {ticket.transcript?.length > 0 && (
-            <>
-              <ol aria-label="AI chat transcript" className="flex flex-col gap-3 text-sm">
-                {ticket.transcript.map((turn, i) => {
-                  const isCustomer = turn.role === "user";
-                  return (
-                    <li
-                      key={i}
-                      className={`flex flex-col ${isCustomer ? "items-start" : "items-end"}`}
-                    >
-                      <span className="mb-1 px-1 text-xs text-slate-500">
-                        {isCustomer ? customerName : "Assistant"}
-                      </span>
-                      <div
-                        className={`max-w-[85%] whitespace-pre-wrap break-words rounded-2xl px-4 py-2.5 ${
-                          isCustomer
-                            ? "rounded-tl-md bg-slate-100 text-ink"
-                            : "rounded-tr-md bg-accent/15 text-slate-900 ring-1 ring-accent/25"
-                        }`}
+        <section
+          aria-label="Conversation"
+          className="rounded-[6px] border border-line-strong bg-sheet shadow-[var(--shadow-sheet)]"
+        >
+          <h2 className="flex items-center gap-2 border-b border-line px-5 py-3 text-[13px] font-bold sm:px-6">
+            <Icon name="headset" className="h-4 w-4 text-muted" />
+            Conversation with {customerName}
+          </h2>
+          <div className="px-5 py-5 sm:px-6">
+            {ticket.transcript?.length > 0 && (
+              <>
+                <ol aria-label="Chat with the assistant" className="space-y-3">
+                  {ticket.transcript.map((turn, i) => {
+                    const isCustomer = turn.role === "user";
+                    return (
+                      <li
+                        key={i}
+                        className={`flex flex-col ${isCustomer ? "items-start" : "items-end"}`}
                       >
-                        {turn.content}
-                      </div>
-                    </li>
-                  );
-                })}
-              </ol>
-              <div className="my-6 flex items-center gap-3 text-xs font-medium text-slate-400">
-                <span className="h-px flex-1 bg-slate-200" />
-                Handed off to the team
-                <span className="h-px flex-1 bg-slate-200" />
-              </div>
-            </>
-          )}
-          {ticket.messages.length === 0 ? (
-            !ticket.transcript?.length && <p className="text-sm text-slate-500">No messages yet.</p>
-          ) : (
-            <Thread messages={ticket.messages} />
-          )}
+                        <span className="mb-1 px-0.5 text-[12px] font-semibold text-muted">
+                          {isCustomer ? customerName : "Assistant"}
+                        </span>
+                        <div
+                          className={`max-w-[min(85%,42rem)] whitespace-pre-wrap break-words rounded-[6px] px-4 py-2.5 text-[14px] leading-[1.55] ${
+                            isCustomer
+                              ? "border border-line bg-wash text-ink"
+                              : "border border-assistant-edge bg-assistant text-ink"
+                          }`}
+                        >
+                          {turn.content}
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ol>
+                <div
+                  role="separator"
+                  className="my-6 flex items-center gap-3 text-[12px] font-bold text-carbon"
+                >
+                  <span className="perf h-px flex-1" />
+                  <span className="inline-flex items-center gap-1.5">
+                    <Icon name="userCheck" className="h-3.5 w-3.5" />
+                    Handed to the team
+                  </span>
+                  <span className="perf h-px flex-1" />
+                </div>
+              </>
+            )}
+            {ticket.messages.length === 0 ? (
+              !ticket.transcript?.length && <p className="text-sm text-muted">No messages yet.</p>
+            ) : (
+              <Thread messages={ticket.messages} />
+            )}
+          </div>
 
           {!joined ? (
-            <p className="mt-8 rounded-xl bg-slate-50 px-4 py-3 text-sm text-slate-600 ring-1 ring-slate-200/70">
-              Click <strong>Join chat</strong> above to take over this conversation and reply to the
-              customer.
+            <p className="flex items-center gap-2 border-t border-line bg-wash px-5 py-4 text-sm text-muted sm:px-6">
+              <Icon name="info" className="h-4 w-4 shrink-0" />
+              <span>
+                Use <strong className="font-semibold text-ink">Join chat</strong> above to take this
+                ticket and reply to the merchant.
+              </span>
             </p>
           ) : (
-            <div className="mt-8 border-t border-slate-100 pt-6">
-              <div
-                role="tablist"
-                aria-label="Reply type"
-                className="mb-4 inline-flex gap-1 rounded-xl bg-slate-100 p-1"
-              >
+            <div className="border-t border-line px-5 pb-5 pt-4 sm:px-6">
+              <div role="tablist" aria-label="What you are writing" className="mb-3 flex gap-1">
                 {[
-                  ["reply", "Reply to customer", "send"],
-                  ["note", "Internal note", "note"],
+                  ["reply", "Reply to merchant", "send"],
+                  ["note", "Office note", "lock"],
                 ].map(([id, text, icon]) => (
                   <button
                     key={id}
@@ -349,29 +334,35 @@ function TicketView({ ticketId }) {
                     role="tab"
                     aria-selected={mode === id}
                     onClick={() => setMode(id)}
-                    className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-1.5 text-sm transition ${mode === id ? "bg-white font-semibold text-ink shadow-sm" : "text-slate-500 hover:text-ink"}`}
+                    className={`inline-flex items-center gap-2 rounded-[5px] border px-3 py-1.5 text-sm font-semibold transition-colors ${
+                      mode === id
+                        ? id === "note"
+                          ? "border-office-edge bg-office text-ink"
+                          : "border-carbon/40 bg-carbon/[0.06] text-carbon"
+                        : "border-transparent text-muted hover:text-ink"
+                    }`}
                   >
                     <Icon name={icon} className="h-3.5 w-3.5" />
                     {text}
                   </button>
                 ))}
+                <span className="ml-auto hidden self-center text-[12px] text-muted sm:block">
+                  {mode === "note"
+                    ? "Only support staff see office notes. The merchant is not notified."
+                    : "The merchant sees this on their support page and by email."}
+                </span>
               </div>
-              {mode === "note" && (
-                <p className="mb-3 flex items-center gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-900 ring-1 ring-inset ring-amber-200">
-                  <Icon name="lock" className="h-3.5 w-3.5" />
-                  Only support staff see internal notes. The customer is not notified.
-                </p>
-              )}
               <ReplyBox
                 key={mode}
                 onSend={send}
                 uploadUrl={`${base}attachments/`}
                 allowImages={mode === "reply"}
+                note={mode === "note"}
                 insert={insert}
               >
                 {mode === "reply" && (
-                  <label className="flex items-center gap-2 text-sm text-slate-600">
-                    After sending, mark as
+                  <label className="flex items-center gap-2 text-sm text-muted">
+                    Then mark as
                     <select
                       value={after}
                       onChange={(e) => setAfter(e.target.value)}
@@ -390,7 +381,25 @@ function TicketView({ ticketId }) {
           )}
         </section>
       </div>
-      <aside className="space-y-5 xl:sticky xl:top-24">
+
+      <aside className="space-y-5 xl:sticky xl:top-20">
+        <section
+          aria-label="Store and requester"
+          className="rounded-[6px] border border-line-strong bg-sheet shadow-[var(--shadow-sheet)]"
+        >
+          <h2 className="flex items-center gap-2 border-b border-line px-4 py-3 text-[13px] font-bold">
+            <Icon name="store" className="h-4 w-4 text-muted" />
+            Store and requester
+          </h2>
+          <dl className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-x-3 gap-y-2 px-4 py-3 text-[13px]">
+            {details.map(([k, v]) => (
+              <Fragment key={k}>
+                <dt className="text-muted">{k}</dt>
+                <dd className="tnum break-words font-medium">{v}</dd>
+              </Fragment>
+            ))}
+          </dl>
+        </section>
         <Playbook
           key={ticket.category}
           category={ticket.category === "other" ? "all" : ticket.category}
@@ -403,7 +412,7 @@ function TicketView({ ticketId }) {
 
 function Field({ name, children }) {
   return (
-    <label className="text-xs font-medium text-slate-500">
+    <label className="text-[12px] font-semibold text-muted">
       {name}
       <div className="mt-1">{children}</div>
     </label>

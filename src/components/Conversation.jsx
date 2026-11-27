@@ -4,7 +4,8 @@ import { MAX_ATTACHMENTS, MAX_REPLY, clock, validateReply } from "../lib/tickets
 import Icon from "./Icon.jsx";
 import { Avatar, ErrorNote, inputClass, primaryButton, secondaryButton } from "./ui.jsx";
 
-// The customer's messages come in on the left; ours (staff) are on the right. Internal notes are yellow.
+// Each message is a copy on its own paper: the merchant's on plain stock (left), ours in carbon (right),
+// office notes on yellow. The paper, the side and the label all say who wrote it and who can see it.
 export function Thread({ messages }) {
   const end = useRef(null);
   const seen = useRef(null);
@@ -15,31 +16,41 @@ export function Thread({ messages }) {
   }, [messages.length]);
 
   return (
-    <ol className="space-y-4" aria-label="Conversation">
+    <ol className="space-y-3" aria-label="Conversation">
       {messages.map((m) => {
         const ours = m.senderType === "staff";
-        const tone = m.isInternal
-          ? "bg-amber-50 text-slate-900 ring-1 ring-inset ring-amber-200"
+        const paper = m.isInternal
+          ? "ruled border border-office-edge bg-office text-ink"
           : ours
-            ? "bg-ink text-white"
-            : "bg-slate-100 text-ink";
-        const metaTone = ours && !m.isInternal ? "text-white/60" : "text-slate-500";
+            ? "border border-carbon/25 bg-sheet text-carbon shadow-[var(--shadow-sheet)]"
+            : "border border-line bg-wash text-ink";
+        const metaTone = ours && !m.isInternal ? "text-carbon/80" : "text-muted";
         return (
-          <li key={m.id} className={`flex items-end gap-2.5 ${ours ? "flex-row-reverse" : ""}`}>
+          <li key={m.id} className={`flex items-start gap-2.5 ${ours ? "flex-row-reverse" : ""}`}>
             <Avatar
               name={m.senderName}
-              size="h-8 w-8"
-              tone={ours ? "bg-accent/15 text-accent-deep" : "bg-slate-100 text-slate-600"}
+              size="h-7 w-7"
+              tone={ours ? "bg-carbon/10 text-carbon" : "bg-ink/[0.07] text-ink"}
             />
-            <div
-              className={`max-w-[80%] rounded-2xl px-4 py-3 ${tone} ${ours ? "rounded-br-md" : "rounded-bl-md"}`}
-            >
-              <p className={`flex items-center gap-1.5 text-xs ${metaTone}`}>
-                {m.isInternal && <Icon name="lock" className="h-3 w-3" />}
-                {m.isInternal ? "Internal note · " : ""}
-                {m.senderName} · {clock(m.createdAt)}
+            <div className={`max-w-[min(80%,42rem)] rounded-[6px] px-4 py-3 ${paper}`}>
+              <p className={`flex flex-wrap items-center gap-x-1.5 text-[12px] ${metaTone}`}>
+                {m.isInternal && (
+                  <span className="inline-flex items-center gap-1 font-bold text-ink">
+                    <Icon name="lock" className="h-3 w-3" />
+                    Office note, not sent
+                  </span>
+                )}
+                {ours && !m.isInternal && (
+                  <span className="inline-flex items-center gap-1 font-bold text-carbon">
+                    <Icon name="send" className="h-3 w-3" />
+                    Reply to merchant
+                  </span>
+                )}
+                <span className={m.isInternal ? "" : "font-semibold"}>{m.senderName}</span>
+                <span aria-hidden="true">·</span>
+                <span className="tnum">{clock(m.createdAt)}</span>
               </p>
-              <p className="mt-1.5 whitespace-pre-wrap break-words text-[15px] leading-relaxed">
+              <p className="mt-1 whitespace-pre-wrap break-words text-[14.5px] leading-[1.6]">
                 {m.body}
               </p>
               {m.attachments?.length > 0 && (
@@ -50,7 +61,7 @@ export function Thread({ messages }) {
                         <img
                           src={a.url}
                           alt={a.name || "Attachment"}
-                          className="h-20 w-20 rounded-lg object-cover ring-1 ring-black/5"
+                          className="h-20 w-20 rounded-[4px] object-cover ring-1 ring-ink/10"
                         />
                       </a>
                     </li>
@@ -67,7 +78,14 @@ export function Thread({ messages }) {
 }
 
 // Reply box. onSend({ message, attachments: [ids] }) -> { ok, error? }. Cleared only when the send worked.
-export function ReplyBox({ onSend, uploadUrl, allowImages = true, insert, children }) {
+export function ReplyBox({
+  onSend,
+  uploadUrl,
+  allowImages = true,
+  insert,
+  note = false,
+  children,
+}) {
   const [text, setText] = useState("");
   // Text pushed in from the sidebar (insert = { id, text }); applied once per id while rendering
   const [applied, setApplied] = useState(insert?.id);
@@ -123,8 +141,16 @@ export function ReplyBox({ onSend, uploadUrl, allowImages = true, insert, childr
         onKeyDown={(e) => {
           if ((e.metaKey || e.ctrlKey) && e.key === "Enter") submit(e);
         }}
-        className={`${inputClass} w-full resize-y py-3 leading-relaxed`}
-        placeholder="Write a message… (Ctrl + Enter to send)"
+        className={`${inputClass} block w-full resize-y px-4 py-3 text-[14.5px] leading-[24px] ${
+          note
+            ? "ruled border-office-edge bg-office hover:border-office-edge focus:border-ink/40 focus:ring-ink/10"
+            : ""
+        }`}
+        placeholder={
+          note
+            ? "Note for the team. The merchant never sees this. (Ctrl + Enter to save)"
+            : "Write to the merchant… (Ctrl + Enter to send)"
+        }
       />
       {images.length > 0 && (
         <ul className="flex flex-wrap gap-3">
@@ -133,7 +159,7 @@ export function ReplyBox({ onSend, uploadUrl, allowImages = true, insert, childr
               <img
                 src={i.url}
                 alt={i.name || "Image"}
-                className="h-16 w-16 rounded-xl object-cover ring-1 ring-slate-200"
+                className="h-16 w-16 rounded-[4px] object-cover ring-1 ring-line-strong"
               />
               <button
                 type="button"
@@ -165,15 +191,19 @@ export function ReplyBox({ onSend, uploadUrl, allowImages = true, insert, childr
               disabled={uploading || busy || images.length >= MAX_ATTACHMENTS}
               onClick={() => input.current?.click()}
             >
-              <Icon name="paperclip" className="h-4 w-4 text-slate-500" />
+              <Icon name="paperclip" className="h-4 w-4 text-muted" />
               {uploading ? "Uploading…" : "Attach image"}
             </button>
           </>
         )}
         {children}
-        <button type="submit" disabled={busy || uploading} className={`${primaryButton} ml-auto`}>
-          <Icon name="send" className="h-4 w-4" />
-          {busy ? "Sending…" : "Send"}
+        <button
+          type="submit"
+          disabled={busy || uploading}
+          className={`${note ? "inline-flex items-center justify-center gap-2 rounded-[5px] bg-ink px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-black disabled:cursor-not-allowed disabled:opacity-50" : primaryButton} ml-auto`}
+        >
+          <Icon name={note ? "lock" : "send"} className="h-4 w-4" />
+          {busy ? (note ? "Saving…" : "Sending…") : note ? "Save note" : "Send to merchant"}
         </button>
       </div>
       <ErrorNote>{error}</ErrorNote>
